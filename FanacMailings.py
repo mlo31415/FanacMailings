@@ -81,7 +81,7 @@ def main():
             issueindex=template    # Make a copy of the template
             issueindex, success=FindAndReplaceBracketedText(issueindex, "fanac-rows", newtable)
             if success:
-                    with open (os.path.join(reportsdir, apa, issue)+".html", "w") as file:
+                    with open (os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
                         issueindex=issueindex.split("/n")
                         file.writelines(issueindex)
             i=0
