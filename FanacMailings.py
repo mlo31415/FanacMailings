@@ -67,12 +67,12 @@ def main():
         if not os.path.exists(os.path.join(reportsdir, apa)):
             os.mkdir(os.path.join(reportsdir, apa))
         # For each mailing of that APA
-        for issue in apas[apa]:
+        for mailing in apas[apa]:
             newtable="<tr>\n"
             for header in mailingsheaders:
                 newtable+=f"<th>{header}</th>\n"
             newtable+="</tr>\n"
-            for row in apas[apa][issue]:
+            for row in apas[apa][mailing]:
                 newtable+="<tr>\n"
                 for cell in row:
                     newtable+=f"<th>{cell}</th>\n"
