@@ -6,10 +6,11 @@ import re
 
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText
-from Log import Log, LogError, LogDisplayErrorsIfAny
+from Log import Log, LogError, LogDisplayErrorsIfAny, LogOpen
 
 def main():
-    if not Settings().Load("FanacMailings settings.txt"):
+    LogOpen("log.txt", "log-ERRORS.txt")
+    if not Settings().Load("FanacMailings settings.txt", MustExist=True, SuppressMessageBox=True):
         LogError("Could not find settings file 'FanacMailings settings.txt'")
         return
 
@@ -59,7 +60,6 @@ def main():
                         apas[apa][mailingnumber]=[]
                     apas[apa][m.groups()[0]].append(row)
                     i=0
-
 
     # We've slurped in all the data.  Now create the index files for each issue
     # We will create a file in the ReportsDir for each APA, and put the individual issue index pages there
