@@ -56,8 +56,8 @@ def main():
     if not os.path.exists(reportsdir):
         os.mkdir(reportsdir)
 
-    # Read the template file
-    templateFile=Settings().Get("Template")
+    # Read the mailings template file
+    templateFile=Settings().Get("Template - Mailing")
     with open(templateFile, "r") as file:
         template="".join(file.readlines())
 
