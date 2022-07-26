@@ -64,6 +64,9 @@ def main():
     # We've slurped in all the data.  Now create the index files for each issue
     # We will create a file in the ReportsDir for each APA, and put the individual issue index pages there
     reportsdir=Settings().Get("ReportsDir")
+    if len(reportsdir) == 0:
+        LogError("Settings file 'FanacMailings settings.txt' does not contain a value for ReportsDir (the directory to be used for reports)")
+        return
     if not os.path.exists(reportsdir):
         os.mkdir(reportsdir)
 
