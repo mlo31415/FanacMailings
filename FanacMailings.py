@@ -67,10 +67,28 @@ def main():
     if not os.path.exists(reportsdir):
         os.mkdir(reportsdir)
 
-    # Read the mailings template file
-    templateFile=Settings().Get("Template - Mailing")
-    with open(templateFile, "r") as file:
-        template="".join(file.readlines())
+    # Read the mailing and template files
+    templateFilename=Settings().Get("Template-Mailing")
+    if len(templateFilename) == 0:
+        LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-Mailing (the template for an individual mailing page)")
+        return
+    try:
+        with open(templateFilename, "r") as file:
+            templateMailing="".join(file.readlines())
+    except FileNotFoundError:
+        LogError(f"Could not open '{templateFilename}'")
+        return
+
+    templateFilename=Settings().Get("Template-APA")
+    if len(templateFilename) == 0:
+        LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-APA (the template for an APA page)")
+        return
+    try:
+        with open(templateFilename, "r") as file:
+            templateApa="".join(file.readlines())
+    except FileNotFoundError:
+        LogError(f"Could not open '{templateFilename}'")
+        return
 
     # For each APA
     for apa in apas.keys():
@@ -89,7 +107,7 @@ def main():
                     newtable+=f"<th>{cell}</th>\n"
                 newtable+="</tr>\n"
             newtable=newtable.replace("\\", "/")
-            issueindex=template    # Make a copy of the template
+            issueindex=templateMailing    # Make a copy of the template
             issueindex, success=FindAndReplaceBracketedText(issueindex, "fanac-rows", newtable)
             if success:
                     with open (os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
