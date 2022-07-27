@@ -44,8 +44,7 @@ def main():
 
     apas: dict[str, dict[str, [str]]]={}
     for row in mailingsdata:
-        # The mailings column is of the form
-                        # ['FAPA 20 & VAPA 23']
+        # The mailings column is of the form   ['FAPA 20 & VAPA 23']
         mailings=row[mailingscol]
         mailings=mailings.removeprefix("['").removesuffix("']")
         mailings=[x.strip() for x in mailings.split("&")]
