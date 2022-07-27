@@ -7,7 +7,7 @@ import os
 import re
 
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText
+from HelpersPackage import FindAndReplaceBracketedText, FormatLink2
 from Log import Log, LogError, LogDisplayErrorsIfAny, LogOpen
 
 def main():
@@ -51,7 +51,7 @@ def main():
             Number: str=""
             Year: str=""
             Month: str=""
-            Editor: str=""
+            Editor: str="Editor?"
 
         mailingsInfoTable[apaName]={}
         for md in mailingsdata:
@@ -137,6 +137,12 @@ def main():
     except FileNotFoundError:
         LogError(f"Could not open '{templateFilename}'")
         return
+    loc=templateApa.find("</fanac-rows>")
+    if loc < 0:
+        LogError(f"The APA template '{templateFilename}' is missing the '</fanac-rows>' indicator.")
+        return
+    templateApaFront=templateApa[:loc]
+    templateApaRear=templateApa[loc+len("</fanac-rows>"):]
 
     # Walk through the info from FanacAnalyzer.
     # For each APA that we found there:
@@ -173,11 +179,16 @@ def main():
             issueindex=templateMailing    # Make a copy of the template
             issueindex, success=FindAndReplaceBracketedText(issueindex, "fanac-rows", newtable)
             if success:
-                    with open (os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
-                        issueindex=issueindex.split("/n")
-                        file.writelines(issueindex)
-            i=0
+                with open (os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
+                    issueindex=issueindex.split("/n")
+                    file.writelines(issueindex)
 
+            # Also append this mailing to the apa page
+            templateApaFront+=f"\n<tr><td>{FormatLink2(f'{mailing}.html', mailing)}</td><td>#</td><td>date</td></tr>"
+
+        # Write out the APA list of all mailings
+        with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
+            file.writelines(templateApaFront+templateApaRear)
     i=0
 
 
