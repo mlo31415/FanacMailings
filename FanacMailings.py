@@ -152,11 +152,11 @@ def main():
         # The format is APAname, mailingNumber, year, month, stuff, stuff
         if os.path.exists(f'{apa}.csv'):
             with open(f'{apa}.csv', 'r') as file:
-                csvstuff=csv.reader(file)
-                for row in csvstuff:
+                joesCvsData=csv.reader(file)
+                for row in joesCvsData:
                     print(row)
         else:
-            csvstuff=None
+            joesCvsData=None
 
         # For each mailing of that APA
         for mailing in apas[apa]:
