@@ -184,7 +184,7 @@ def main():
                     file.writelines(issueindex)
 
             # Also append this mailing to the apa page
-            templateApaFront+=f"\n<tr><td>{FormatLink2(f'{mailing}.html', mailing)}</td><td>#</td><td>date</td></tr>"
+            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>#</td><td>date</td></tr>"
 
         # Write out the APA list of all mailings
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
