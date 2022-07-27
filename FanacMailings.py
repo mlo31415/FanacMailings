@@ -1,5 +1,7 @@
+
 from __future__ import annotations
 
+from dataclasses import dataclass
 import csv
 import os
 import re
@@ -39,8 +41,45 @@ def main():
     if mailingscol == -1:
         LogError(f"Could not find a mailings column in {mailingsheaders}")
         return
+
+    # Get the list of known apas
+    # Mailings is a dictionary indexed by the apa name.
+    #   The value is a dictionary indexed by the mailing number as a string
+    #       The valur of *that* is a MailingDev
+    mailingsInfoTable: dict[str, dict[str, MailingDev]]={}
     knownApas=Settings().Get("Known APAs")
+    if len(sourceCVSfile) == 0:
+        LogError("Settings file 'FanacMailings settings.txt' does not contain a value for 'Known APAs' (the list of APAs we care about here)")
+        return
     knownApas=[x.replace('"', '').strip() for x in knownApas.split(",")]
+
+    # We will next read Joe's mailings data for each known apa
+    for apaName in knownApas:
+        csvname=apaName+".csv"
+        # Skip missing csv files
+        if not os.path.exists(apaName+".csv"):
+            continue
+        # Read the csv file
+        try:
+            with open(csvname, 'r') as csvfile:
+                # Read it into a list of lists
+                filereader=csv.reader(csvfile, delimiter=',', quotechar='"')
+                mailingsdata=[x for x in filereader]
+        except FileNotFoundError:
+            LogError(f"Could not open CVS file {sourceCVSfile}")
+            return
+
+        # Create a dictionary of mailings for this APA.  Indexed by the mailing number as a string.
+        @dataclass
+        class MailingDev:
+            Number: str=""
+            Year: str=""
+            Month: str=""
+            Editor: str=""
+
+        mailingsInfoTable[apaName]={}
+        for md in mailingsdata:
+            mailingsInfoTable[apaName][md[1]]=MailingDev(Number=md[1], Year=md[2], Month=md[3])
 
     apas: dict[str, dict[str, [str]]]={}
     for row in mailingsdata:
@@ -97,6 +136,17 @@ def main():
         # Make sure that a directory exists for that APA
         if not os.path.exists(os.path.join(reportsdir, apa)):
             os.mkdir(os.path.join(reportsdir, apa))
+
+        # Look for that APA's csv file.
+        # The format is APAname, mailingNumber, year, month, stuff, stuff
+        if os.path.exists(f'{apa}.csv'):
+            with open(f'{apa}.csv', 'r') as file:
+                csvstuff=csv.reader(file)
+                for row in csvstuff:
+                    print(row)
+        else:
+            csvstuff=None
+
         # For each mailing of that APA
         for mailing in apas[apa]:
             newtable="<tr>\n"
