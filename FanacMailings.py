@@ -114,7 +114,7 @@ def main():
     if not os.path.exists(reportsdir):
         os.mkdir(reportsdir)
 
-    # Read the mailing and template files
+    # Read the mailing template file
     templateFilename=Settings().Get("Template-Mailing")
     if len(templateFilename) == 0:
         LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-Mailing (the template for an individual mailing page)")
@@ -126,6 +126,7 @@ def main():
         LogError(f"Could not open '{templateFilename}'")
         return
 
+    # Read the apa template file
     templateFilename=Settings().Get("Template-APA")
     if len(templateFilename) == 0:
         LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-APA (the template for an APA page)")
@@ -137,9 +138,13 @@ def main():
         LogError(f"Could not open '{templateFilename}'")
         return
 
-    # For each APA
+    # Walk through the info from FanacAnalyzer.
+    # For each APA that we found there:
+    #   Create an apa HTML page listing (and linking to) all the mailing pages
+    #   Create all the individual mailing pages
     for apa in apas.keys():
-        # Make sure that a directory exists for that APA
+
+        # Make sure that a directory exists for that APA's html files
         if not os.path.exists(os.path.join(reportsdir, apa)):
             os.mkdir(os.path.join(reportsdir, apa))
 
