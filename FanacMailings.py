@@ -84,6 +84,8 @@ def main():
         LogError(f"Could not find a mailings column in {mailingsheaders}")
         return
 
+    #---------------------------
+    # Turn the data from FanacAnalyzer into a dictionary of the form dict(apa, dict(mailing, data))
     apas: dict[str, dict[str, [str]]]={}
     for row in mailingsdata:
         # The mailings column is of the form   ['FAPA 20 & VAPA 23']
@@ -102,6 +104,7 @@ def main():
                     apas[apa][m.groups()[0]].append(row)
                     i=0
 
+    #------------------
     # We've slurped in all the data.  Now create the index files for each issue
     # We will create a file in the ReportsDir for each APA, and put the individual issue index pages there
     reportsdir=Settings().Get("ReportsDir")
