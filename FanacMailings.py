@@ -7,7 +7,7 @@ import re
 
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, SortMessyNumber
-from Log import Log, LogError, LogDisplayErrorsIfAny, LogOpen
+from Log import LogError, LogDisplayErrorsIfAny, LogOpen
 
 
 # Function to find the index of a column header
@@ -122,7 +122,6 @@ def main():
                     if mailingnumber not in apas[apa].keys():
                         apas[apa][mailingnumber]=[]
                     apas[apa][m.groups()[0]].append(row)
-                    i=0
 
     # ------------------
     # We've slurped in all the data.  Now create the index files for each issue
@@ -219,7 +218,6 @@ def main():
         # Write out the APA list of all mailings
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
             file.writelines(templateApaFront+templateApaRear)
-    i=0
 
 
 # Run main()
