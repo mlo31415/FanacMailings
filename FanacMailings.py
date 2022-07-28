@@ -123,7 +123,7 @@ def main():
         with open(templateFilename, "r") as file:
             templateMailing="".join(file.readlines())
     except FileNotFoundError:
-        LogError(f"Could not open '{templateFilename}'")
+        LogError(f"Could not open the mailing template file, '{templateFilename}'")
         return
 
     # Walk through the info from FanacAnalyzer.
@@ -173,7 +173,7 @@ def main():
             with open(templateFilename, "r") as file:
                 templateApa="".join(file.readlines())
         except FileNotFoundError:
-            LogError(f"Could not open '{templateFilename}'")
+            LogError(f"Could not open the APA template file, '{templateFilename}'")
             return
         loc=templateApa.find("</fanac-rows>")
         if loc < 0:
