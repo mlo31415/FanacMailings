@@ -154,15 +154,9 @@ def main():
         if not os.path.exists(os.path.join(reportsdir, apa)):
             os.mkdir(os.path.join(reportsdir, apa))
 
-        # Look for that APA's csv file.
-        # The format is APAname, mailingNumber, year, month, stuff, stuff
-        if os.path.exists(f'{apa}.csv'):
-            with open(f'{apa}.csv', 'r') as file:
-                joesCvsData=csv.reader(file)
-                for row in joesCvsData:
-                    print(row)
-        else:
-            joesCvsData=None
+        mailingInfo={}
+        if apa in mailingsInfoTable:
+            mailingInfo=mailingsInfoTable[apa]
 
         # For each mailing of that APA
         for mailing in apas[apa]:
@@ -184,7 +178,14 @@ def main():
                     file.writelines(issueindex)
 
             # Also append this mailing to the apa page
-            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>#</td><td>date</td></tr>"
+            editor="editor?"
+            when="when?"
+            if mailing in mailingInfo:
+                m=mailingInfo[mailing]
+                editor=m.Editor
+                when=m.Month+"/"+m.Year
+
+            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td>contributors?</td></tr>"
 
         # Write out the APA list of all mailings
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
