@@ -213,7 +213,7 @@ def main():
                 editor=m.Editor
                 when=m.Month+"/"+m.Year
 
-            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td>contributors?</td></tr>"
+            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td></tr>"
 
         # Write out the APA list of all mailings
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
