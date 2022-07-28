@@ -6,7 +6,7 @@ import os
 import re
 
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, InterpretNumber
+from HelpersPackage import FindAndReplaceBracketedText, SortMessyNumber
 from Log import Log, LogError, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -182,13 +182,8 @@ def main():
         templateApaFront=templateApa[:loc]
         templateApaRear=templateApa[loc+len("</fanac-rows>"):]
 
-        # Now sort the accumulation of mailings in order and create the apa page
-        def mailingSortKey(key: str) -> float:
-            rslt=InterpretNumber(key)
-            if rslt is not None:
-                return rslt
-            return 99999
-        accum=sorted(accum, key=lambda x: mailingSortKey(x[0]))
+        # Now sort the accumulation of mailings ito numerical order and create the apa page
+        accum=sorted(accum, key=lambda x: SortMessyNumber(x[0]))
 
         for mailingTuple in accum:
             mailing=mailingTuple[0]
