@@ -145,8 +145,6 @@ def main():
         LogError(f"Could not open the mailing template file, '{templateFilename}'")
         return
 
-
-
     # Walk through the info from FanacAnalyzer.
     # For each APA that we found there:
     #   Create an apa HTML page listing (and linking to) all the mailing pages
@@ -189,13 +187,20 @@ def main():
 
             # Now the bottom matter (the list of fanzines)
             newtable="<tr>\n"
-            for header in mailingsheaders:
-                newtable+=f"<th>{header}</th>\n"
+            # Generate the header row, selecting only those header which are in this dict:
+            colSelectionAndNaming={"IssueName": "Contribution", "Editor": "Editor", "PageCount": "Page Count"}
+            colsSelected=[]     # Retain the indexes of the selected headers to generate the table rows
+            for col, header in enumerate(mailingsheaders):
+                if header in colSelectionAndNaming:
+                    newtable+=f"<th>{colSelectionAndNaming[header]}</th>\n"
+                    colsSelected.append(col)
             newtable+="</tr>\n"
+
             for row in apas[apa][mailing]:
                 newtable+="<tr>\n"
-                for cell in row:
-                    newtable+=f"<th>{cell}</th>\n"
+                for col, cell in enumerate(row):
+                    if col in colsSelected:
+                        newtable+=f"<th>{cell}</th>\n"
                 newtable+="</tr>\n"
             newtable=newtable.replace("\\", "/")
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-rows", newtable)
