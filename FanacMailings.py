@@ -6,7 +6,7 @@ import os
 import re
 
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName, Int0
 from Log import LogError, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -145,6 +145,18 @@ def main():
         LogError(f"Could not open the mailing template file, '{templateFilename}'")
         return
 
+    # Note that Month is 1-12
+    def DateMonthYear(month: int, year: int) -> str:
+        months=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        if month > 0 and year > 0:
+            return f"{months[month-1]} {year}"
+        if year > 0:
+            return str(year)
+        if month > 0:
+            return months[month]
+        return "date?"
+
+
     # Walk through the info from FanacAnalyzer.
     # For each APA that we found there:
     #   Create an apa HTML page listing (and linking to) all the mailing pages
@@ -180,7 +192,7 @@ def main():
             if mailing in mailingInfo:
                 m=mailingInfo[mailing]
                 editor=f"OE: {NormalizePersonsName(m.Editor)}"
-                when=m.Month+"/"+m.Year
+                when=DateMonthYear(Int0(m.Month), Int0(m.Year))
             mid=mid.replace("editor", editor)
             mid=mid.replace("date", when)
             mailingPage=start+mid+end
@@ -232,7 +244,7 @@ def main():
             if mailing in mailingInfo:
                 m=mailingInfo[mailing]
                 editor=NormalizePersonsName(m.Editor)
-                when=m.Month+"/"+m.Year
+                when=DateMonthYear(Int0(m.Month), Int0(m.Year))
 
             templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td></tr>"
 
