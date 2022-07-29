@@ -6,7 +6,7 @@ import os
 import re
 
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, SortMessyNumber
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName
 from Log import LogError, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -161,8 +161,31 @@ def main():
 
         # For each mailing of that APA generate a mailing page.
         # Also accumulate the info needed to produce the apa page
-        accum=[]
+        listOfMailings=[]
         for mailing in apas[apa]:
+            # First, the top matter
+            # <div><fanac-top>
+            # <table class=topmatter>
+            # <tr><td class=topmatter>mailing</td></tr>
+            # <tr><td class=topmatter>editor</td></tr>
+            # <tr><td class=topmatter>date</td></tr>
+            # <tr><td class=topmatter>APA Mailing</td></tr>
+            # </table>
+            # </fanac-top></div>
+            mailingPage=templateMailing
+            start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-top")
+            mid=mid.replace("mailing", f"{apa} mailing {mailing}")
+            editor="editor?"
+            when="when?"
+            if mailing in mailingInfo:
+                m=mailingInfo[mailing]
+                editor=f"OE: {NormalizePersonsName(m.Editor)}"
+                when=m.Month+"/"+m.Year
+            mid=mid.replace("editor", editor)
+            mid=mid.replace("date", when)
+            mailingPage=start+mid+end
+
+            # Now the bottom matter (the list of fanzines)
             newtable="<tr>\n"
             for header in mailingsheaders:
                 newtable+=f"<th>{header}</th>\n"
@@ -173,15 +196,14 @@ def main():
                     newtable+=f"<th>{cell}</th>\n"
                 newtable+="</tr>\n"
             newtable=newtable.replace("\\", "/")
-            issueindex=templateMailing  # Make a copy of the template
-            issueindex, success=FindAndReplaceBracketedText(issueindex, "fanac-rows", newtable)
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-rows", newtable)
             if success:
                 with open(os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
-                    issueindex=issueindex.split("/n")
-                    file.writelines(issueindex)
+                    mailingPage=mailingPage.split("/n")
+                    file.writelines(mailingPage)
 
             # Also append to the accumulator for the apa page
-            accum.append((mailing, None))  # Tp be expanded
+            listOfMailings.append((mailing, None))  # To be expanded
 
         # Read the apa template file
         templateFilename=Settings().Get("Template-APA")
@@ -202,15 +224,14 @@ def main():
         templateApaRear=templateApa[loc+len("</fanac-rows>"):]
 
         # Now sort the accumulation of mailings ito numerical order and create the apa page
-        accum=sorted(accum, key=lambda x: SortMessyNumber(x[0]))
-
-        for mailingTuple in accum:
+        listOfMailings=sorted(listOfMailings, key=lambda x: SortMessyNumber(x[0]))
+        for mailingTuple in listOfMailings:
             mailing=mailingTuple[0]
             editor="editor?"
             when="when?"
             if mailing in mailingInfo:
                 m=mailingInfo[mailing]
-                editor=m.Editor
+                editor=NormalizePersonsName(m.Editor)
                 when=m.Month+"/"+m.Year
 
             templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td></tr>"
