@@ -229,10 +229,17 @@ def main():
 
             # Insert the new issues table into the template
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-rows", newtable)
-            if success:
-                with open(os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
-                    mailingPage=mailingPage.split("/n")
-                    file.writelines(mailingPage)
+            if not success:
+                LogError("Could not add issues table to mailing page at 'fanac-rows'")
+                return
+
+            # Add the updated date/time
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}")
+
+            # Write the mailing file
+            with open(os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
+                mailingPage=mailingPage.split("/n")
+                file.writelines(mailingPage)
 
             # Also append to the accumulator for the apa page
             listOfMailings.append((mailing, None))  # To be expanded
