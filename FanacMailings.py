@@ -6,7 +6,7 @@ import os
 import re
 
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName, Int0, DateMonthYear
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName, Int0, DateMonthYear, FormatLink2
 from Log import LogError, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -202,6 +202,9 @@ def main():
             # Generate the header row, selecting only those headers which are in this dict:
             colSelectionAndOrder=["IssueName", "Editor", "PageCount"]   # The columns to be displayed in order
             colNaming=["Contribution", "Editor", "Page Count"]      # The corresponding column names
+            linkCol=mailingsheaders.index("IssueName")   # The column to have the link to the issue
+            seriesUrlCol=mailingsheaders.index("DirURL")   # The column containing the full URL of the issue's directory'
+            issueUrlCol=mailingsheaders.index("PageName")   # The column containing the issue's URL (just the issue, not the issue's directory)
             colsSelected=[]     # Retain the indexes of the selected headers to generate the table rows
             for col in range(len(colSelectionAndOrder)):
                 if colSelectionAndOrder[col] not in mailingsheaders:
@@ -211,12 +214,19 @@ def main():
                 colsSelected.append(mailingsheaders.index(colSelectionAndOrder[col]))
             newtable+="</tr>\n"
 
+            # Now generate the data rows in the mailings table
             for row in apas[apa][mailing]:
                 newtable+="<tr>\n"
                 for col in colsSelected:
-                    newtable+=f"<th>{row[col]}</th>\n"
+                    if col == linkCol:
+                        fullUrl=row[seriesUrlCol]+"/"+row[issueUrlCol]
+                        newtable+=f"<th><a href={fullUrl}>{row[col]}</a></th>\n"
+                    else:
+                        newtable+=f"<th>{row[col]}</th>\n"
                 newtable+="</tr>\n"
             newtable=newtable.replace("\\", "/")
+
+            # Insert the new issues table into the template
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-rows", newtable)
             if success:
                 with open(os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
