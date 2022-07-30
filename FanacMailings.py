@@ -163,6 +163,9 @@ def main():
         # Also accumulate the info needed to produce the apa page
         listOfMailings=[]
         for mailing in apas[apa]:
+
+            # Do a mailing page
+
             # First, the top matter
             # <div><fanac-top>
             # <table class=topmatter>
@@ -221,6 +224,8 @@ def main():
             # Also append to the accumulator for the apa page
             listOfMailings.append((mailing, None))  # To be expanded
 
+        #------------------------------
+        # Now that the mailing pages are all done, do an apa page
         # Read the apa template file
         templateFilename=Settings().Get("Template-APA")
         if len(templateFilename) == 0:
