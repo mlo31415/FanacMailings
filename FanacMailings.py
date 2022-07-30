@@ -185,6 +185,15 @@ def main():
             mid=mid.replace("date", when)
             mailingPage=start+mid+end
 
+            # Now add the necessary header info
+            start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-title")
+            mid=mid.replace("name of mailing", f"{apa}-{mailing}")
+            mailingPage=start+mid+end
+
+            start, mid, end=ParseFirstStringBracketedText(mailingPage, "head")
+            mid=mid.replace("mailing content", f"{mailing}, {editor}, {when}, {apa}-mailing")
+            mailingPage=start+mid+end
+
             # Now the bottom matter (the list of fanzines)
             newtable="<tr>\n"
             # Generate the header row, selecting only those header which are in this dict:
