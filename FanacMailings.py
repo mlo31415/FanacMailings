@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import csv
 import os
 import re
+import datetime
 
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName, Int0, DateMonthYear, FormatLink2
@@ -268,6 +269,9 @@ def main():
                 when=DateMonthYear(Int0(m.Month), Int0(m.Year))
 
             templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td></tr>"
+
+        # Add the updated date/time
+        templateApaRear, success=FindAndReplaceBracketedText(templateApaRear, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
 
         # Write out the APA list of all mailings
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
