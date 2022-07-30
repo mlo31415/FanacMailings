@@ -8,7 +8,7 @@ import datetime
 
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName, Int0, DateMonthYear, FormatLink2
-from Log import LogError, LogDisplayErrorsIfAny, LogOpen
+from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
 # Function to find the index of a column header
@@ -257,6 +257,26 @@ def main():
         except FileNotFoundError:
             LogError(f"Could not open the APA template file, '{templateFilename}'")
             return
+
+        # Add the APA's name at the top
+        start, mid, end=ParseFirstStringBracketedText(templateApa, "fanac-top")
+        mid=mid.replace("apa-name", apa)
+        templateApa=start+mid+end
+
+        # Add random descriptive information if a file <apa>-bumpf.txt exists.  (E.g., SAPS-bumpf.txt)
+        fname=apa+"-bumpf.txt"
+        if os.path.exists(fname):
+            with open(fname, "r") as file:
+                bumpf=file.read()
+            if len(bumpf) > 0:
+                start, mid, end=ParseFirstStringBracketedText(templateApa, "fanac-bumpf")
+                if len(end) > 0:
+                    mid=bumpf+"<p>"
+                    templateApa=start+mid+end
+            Log("Bumpf added to APA page")
+        else:
+            Log(f" No {fname} file found, so no bumpf added.")
+
         loc=templateApa.find("</fanac-rows>")
         if loc < 0:
             LogError(f"The APA template '{templateFilename}' is missing the '</fanac-rows>' indicator.")
