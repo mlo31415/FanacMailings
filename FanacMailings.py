@@ -199,20 +199,22 @@ def main():
 
             # Now the bottom matter (the list of fanzines)
             newtable="<tr>\n"
-            # Generate the header row, selecting only those header which are in this dict:
-            colSelectionAndNaming={"IssueName": "Contribution", "Editor": "Editor", "PageCount": "Page Count"}
+            # Generate the header row, selecting only those headers which are in this dict:
+            colSelectionAndOrder=["IssueName", "Editor", "PageCount"]   # The columns to be displayed in order
+            colNaming=["Contribution", "Editor", "Page Count"]      # The corresponding column names
             colsSelected=[]     # Retain the indexes of the selected headers to generate the table rows
-            for col, header in enumerate(mailingsheaders):
-                if header in colSelectionAndNaming:
-                    newtable+=f"<th>{colSelectionAndNaming[header]}</th>\n"
-                    colsSelected.append(col)
+            for col in range(len(colSelectionAndOrder)):
+                if colSelectionAndOrder[col] not in mailingsheaders:
+                    LogError(f"Can't find a column named '{colSelectionAndOrder[col]}' the headers list: [{mailingsheaders}]")
+                    return
+                newtable+=f"<th>{colNaming[col]}</th>\n"
+                colsSelected.append(mailingsheaders.index(colSelectionAndOrder[col]))
             newtable+="</tr>\n"
 
             for row in apas[apa][mailing]:
                 newtable+="<tr>\n"
-                for col, cell in enumerate(row):
-                    if col in colsSelected:
-                        newtable+=f"<th>{cell}</th>\n"
+                for col in colsSelected:
+                    newtable+=f"<th>{row[col]}</th>\n"
                 newtable+="</tr>\n"
             newtable=newtable.replace("\\", "/")
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-rows", newtable)
