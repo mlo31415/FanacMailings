@@ -313,6 +313,24 @@ def main():
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
             file.writelines(templateApaFront+templateApaRear)
 
+        #--------------------------------------------
+        # Generate the All Apas root page
+
+        templateFilename=Settings().Get("Template-allAPAs")
+        if len(templateFilename) == 0:
+            LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-allAPAs (the template for the page listing all APAs)")
+            return
+        try:
+            with open(templateFilename, "r") as file:
+                templateAllApas="".join(file.readlines())
+        except FileNotFoundError:
+            LogError(f"Could not open the all APAs template file, '{templateFilename}'")
+            return
+
+        templateAllApas=AddBoilerplate(templateAllApas, f"Mailings for All APAs", f"Mailings for All APAs")
+
+        with open(os.path.join(reportsdir, "index.html"), "w") as file:
+            file.writelines(templateAllApas)
 
 # Run main()
 if __name__ == "__main__":
