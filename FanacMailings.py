@@ -146,6 +146,23 @@ def main():
         LogError(f"Could not open the mailing template file, '{templateFilename}'")
         return
 
+    # All the pages we generate here need the same kinds of information to be added:
+    #   Page title
+    #   Page metadata
+    #   Updated timestamp
+    def AddBoilerplate(page: str, title: str, metadata: str) -> str:
+        start, mid, end=ParseFirstStringBracketedText(page, "fanac-title")
+        mid=mid.replace("name of mailing", title)
+        page=start+mid+end
+
+        start, mid, end=ParseFirstStringBracketedText(page, "head")
+        mid=mid.replace("mailing content", metadata)
+        page=start+mid+end
+
+        # Add the updated date/time
+        page, success=FindAndReplaceBracketedText(page, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}")
+        return page
+
     # Walk through the info from FanacAnalyzer.
     # For each APA that we found there:
     #   Create an apa HTML page listing (and linking to) all the mailing pages
@@ -189,14 +206,7 @@ def main():
             mid=mid.replace("date", when)
             mailingPage=start+mid+end
 
-            # Now add the necessary header info
-            start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-title")
-            mid=mid.replace("name of mailing", f"{apa}-{mailing}")
-            mailingPage=start+mid+end
-
-            start, mid, end=ParseFirstStringBracketedText(mailingPage, "head")
-            mid=mid.replace("mailing content", f"{mailing}, {editor}, {when}, {apa}-mailing")
-            mailingPage=start+mid+end
+            mailingPage=AddBoilerplate(mailingPage, f"{apa}-{mailing}", f"{mailing}, {editor}, {when}, {apa}-mailing")
 
             # Now the bottom matter (the list of fanzines)
             newtable="<tr>\n"
@@ -232,9 +242,6 @@ def main():
             if not success:
                 LogError("Could not add issues table to mailing page at 'fanac-rows'")
                 return
-
-            # Add the updated date/time
-            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}")
 
             # Write the mailing file
             with open(os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
@@ -277,6 +284,8 @@ def main():
         else:
             Log(f" No {fname} file found, so no bumpf added.")
 
+        templateApa=AddBoilerplate(templateApa, f"{apa} Mailings", f"{apa} mailings")
+
         loc=templateApa.find("</fanac-rows>")
         if loc < 0:
             LogError(f"The APA template '{templateFilename}' is missing the '</fanac-rows>' indicator.")
@@ -284,7 +293,7 @@ def main():
         templateApaFront=templateApa[:loc]
         templateApaRear=templateApa[loc+len("</fanac-rows>"):]
 
-        # Now sort the accumulation of mailings ito numerical order and create the apa page
+        # Now sort the accumulation of mailings into numerical order and create the apa page
         listOfMailings=sorted(listOfMailings, key=lambda x: SortMessyNumber(x[0]))
         for mailingTuple in listOfMailings:
             mailing=mailingTuple[0]
