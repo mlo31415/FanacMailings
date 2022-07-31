@@ -231,9 +231,9 @@ def main():
                 for col in colsSelected:
                     if col == linkCol:
                         fullUrl=row[seriesUrlCol]+"/"+row[issueUrlCol]
-                        newtable+=f"<th><a href={fullUrl}>{row[col]}</a></th>\n"
+                        newtable+=f"<td><a href={fullUrl}>{row[col]}</a></td>\n"
                     else:
-                        newtable+=f"<th>{row[col]}</th>\n"
+                        newtable+=f"<td>{row[col]}</td>\n"
                 newtable+="</tr>\n"
             newtable=newtable.replace("\\", "/")
 
