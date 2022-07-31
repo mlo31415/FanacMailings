@@ -152,7 +152,7 @@ def main():
     #   Updated timestamp
     def AddBoilerplate(page: str, title: str, metadata: str) -> str:
         start, mid, end=ParseFirstStringBracketedText(page, "fanac-title")
-        mid=mid.replace("name of mailing", title)
+        mid=mid.replace("title of page", title)
         page=start+mid+end
 
         start, mid, end=ParseFirstStringBracketedText(page, "head")
