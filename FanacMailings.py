@@ -304,7 +304,7 @@ def main():
                 editor=NormalizePersonsName(m.Editor)
                 when=DateMonthYear(Int0(m.Month), Int0(m.Year))
 
-            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td></tr>"
+            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td>{len(apas[apa][mailing])}</tg></tr>"
 
         # Add the updated date/time
         templateApaRear, success=FindAndReplaceBracketedText(templateApaRear, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
