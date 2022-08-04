@@ -212,10 +212,11 @@ def main():
             newtable="<tr>\n"
             # Generate the header row, selecting only those headers which are in this dict:
             colSelectionAndOrder=["IssueName", "Editor", "PageCount"]   # The columns to be displayed in order
-            colNaming=["Contribution", "Editor", "Page Count"]      # The corresponding column names
+            colNaming=["Contribution", "Editor", "Pages"]      # The corresponding column names
             linkCol=mailingsheaders.index("IssueName")   # The column to have the link to the issue
             seriesUrlCol=mailingsheaders.index("DirURL")   # The column containing the full URL of the issue's directory'
             issueUrlCol=mailingsheaders.index("PageName")   # The column containing the issue's URL (just the issue, not the issue's directory)
+            pagesCol=mailingsheaders.index(("PageCount"))
             colsSelected=[]     # Retain the indexes of the selected headers to generate the table rows
             for col in range(len(colSelectionAndOrder)):
                 if colSelectionAndOrder[col] not in mailingsheaders:
@@ -232,6 +233,8 @@ def main():
                     if col == linkCol:
                         fullUrl=row[seriesUrlCol]+"/"+row[issueUrlCol]
                         newtable+=f"<td><a href={fullUrl}>{row[col]}</a></td>\n"
+                    elif col == pagesCol:
+                        newtable+=f"<td style='text-align: right'>{row[col]}&nbsp;&nbsp;</td>"
                     else:
                         newtable+=f"<td>{row[col]}</td>\n"
                 newtable+="</tr>\n"
@@ -304,7 +307,7 @@ def main():
                 editor=NormalizePersonsName(m.Editor)
                 when=DateMonthYear(Int0(m.Month), Int0(m.Year))
 
-            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td>{len(apas[apa][mailing])}</tg></tr>"
+            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td style='text-align: right'>{len(apas[apa][mailing])}&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>"
 
         # Add the updated date/time
         templateApaRear, success=FindAndReplaceBracketedText(templateApaRear, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
