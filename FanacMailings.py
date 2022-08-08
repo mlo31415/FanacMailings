@@ -190,12 +190,10 @@ def main():
             # <tr><td class=topmatter>mailing</td></tr>
             # <tr><td class=topmatter>editor</td></tr>
             # <tr><td class=topmatter>date</td></tr>
-            # <tr><td class=topmatter>APA Mailing</td></tr>
             # </table>
             # </fanac-top></div>
             mailingPage=templateMailing
             start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-top")
-            mid=mid.replace("mailing", f"{apa} mailing {mailing}")
             editor="editor?"
             when="when?"
             if mailing in mailingInfo:
