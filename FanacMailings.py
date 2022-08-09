@@ -307,6 +307,15 @@ def main():
 
             templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td style='text-align: right'>{len(apas[apa][mailing])}&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>"
 
+        # Add counts of mailings and contributions to bottom
+        start, mid, end=ParseFirstStringBracketedText(templateApaRear, "fanac-totals")
+        numConts=0
+        for mailingTuple in listOfMailings:
+            numConts+=len(apas[apa][mailingTuple[0]])
+
+        mid=f"{len(listOfMailings)} mailings containing {numConts} individual contributions"
+        templateApaRear=start+mid+end
+
         # Add the updated date/time
         templateApaRear, success=FindAndReplaceBracketedText(templateApaRear, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
 
