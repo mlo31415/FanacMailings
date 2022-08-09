@@ -7,7 +7,7 @@ import re
 import datetime
 
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, NormalizePersonsName, Int0, DateMonthYear, FormatLink2
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, NormalizePersonsName, Int0, DateMonthYear, FormatLink2
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -223,6 +223,9 @@ def main():
                 newtable+=f"<th>{colNaming[col]}</th>\n"
                 colsSelected.append(mailingsheaders.index(colSelectionAndOrder[col]))
             newtable+="</tr>\n"
+
+            # Sort the contributions into order by fanzine name
+            apas[apa][mailing]=sorted(apas[apa][mailing], key=lambda x: SortTitle(x[0]))
 
             # Now generate the data rows in the mailings table
             for row in apas[apa][mailing]:
