@@ -301,8 +301,8 @@ def main():
         listOfMailings=sorted(listOfMailings, key=lambda x: SortMessyNumber(x[0]))
         for mailingTuple in listOfMailings:
             mailing=mailingTuple[0]
-            editor="editor?"
-            when="when?"
+            editor=""   #"editor?"
+            when="" #"when?"
             if mailing in mailingInfo:
                 m=mailingInfo[mailing]
                 editor=NormalizePersonsName(m.Editor)
