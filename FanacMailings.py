@@ -252,6 +252,12 @@ def main():
                 LogError("Could not add issues table to mailing page at 'fanac-rows'")
                 return
 
+            # Insert the label for the button taking you up one level to all mailings for this APA
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-AllMailings", f"All {apa} mailings")
+            if not success:
+                LogError("Could not add issues table to mailing page at 'fanac-AllMailings'")
+                return
+
             # Write the mailing file
             with open(os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
                 mailingPage=mailingPage.split("/n")
