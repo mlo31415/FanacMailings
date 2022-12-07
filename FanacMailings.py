@@ -194,14 +194,19 @@ def main():
             # </fanac-top></div>
             mailingPage=templateMailing
             start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-top")
-            editor="editor?"
-            when="when?"
+            number=""
+            editor=""   #"editor?"
+            when="" #"when?"
             if mailing in mailingInfo:
                 m=mailingInfo[mailing]
                 editor=f"OE: {NormalizePersonsName(m.Editor)}"
                 when=DateMonthYear(Int0(m.Month), Int0(m.Year))
+                number=m.Number
+            else:
+                number=mailing
             mid=mid.replace("editor", editor)
             mid=mid.replace("date", when)
+            mid=mid.replace("mailing", f"{apa} Mailing #{number}")
             mailingPage=start+mid+end
 
             mailingPage=AddBoilerplate(mailingPage, f"{apa}-{mailing}", f"{mailing}, {editor}, {when}, {apa}-mailing")
