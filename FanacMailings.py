@@ -314,6 +314,7 @@ def main():
         templateApaFront=templateApa[:loc]
         templateApaRear=templateApa[loc+len("</fanac-rows>"):]
 
+
         # Now sort the accumulation of mailings into numerical order and create the apa page
         listOfMailings=sorted(listOfMailings, key=lambda x: SortMessyNumber(x[0]))
         for mailingTuple in listOfMailings:
@@ -327,21 +328,29 @@ def main():
 
             templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td style='text-align: right'>{len(apas[apa][mailing])}&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>"
 
+        templateApa=templateApaFront+templateApaRear
+
         # Add counts of mailings and contributions to bottom
-        start, mid, end=ParseFirstStringBracketedText(templateApaRear, "fanac-totals")
+        start, mid, end=ParseFirstStringBracketedText(templateApa, "fanac-totals")
         numConts=0
         for mailingTuple in listOfMailings:
             numConts+=len(apas[apa][mailingTuple[0]])
 
         mid=f"{len(listOfMailings)} mailings containing {numConts} individual contributions"
-        templateApaRear=start+mid+end
+        templateApa=start+mid+end
 
         # Add the updated date/time
-        templateApaRear, success=FindAndReplaceBracketedText(templateApaRear, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
+        templateApa, success=FindAndReplaceBracketedText(templateApa, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
+
+        # Make the mailto correctly list the apa in the subject line
+        templateApa, success=FindAndReplaceBracketedText(templateApa, "fanac-APAPageMailto", f"Issue related to APA {apa}")
+        if not success:
+            LogError(f"The APA template '{templateFilename}' is missing the '</fanac-APAPageMailto>' indicator.")
+            return
 
         # Write out the APA list of all mailings
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
-            file.writelines(templateApaFront+templateApaRear)
+            file.writelines(templateApa)
 
     #--------------------------------------------
     # Generate the All Apas root page
