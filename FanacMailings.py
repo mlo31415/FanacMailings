@@ -255,7 +255,13 @@ def main():
             # Insert the label for the button taking you up one level to all mailings for this APA
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-AllMailings", f"All {apa} mailings")
             if not success:
-                LogError("Could not add issues table to mailing page at 'fanac-AllMailings'")
+                LogError("Could not change button text on mailing page at 'fanac-AllMailings'")
+                return
+
+            # Modify the Mailto: so that the page name appears as the subject
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-ThisPageName", f"{apa}:{mailing}")
+            if not success:
+                LogError("Could not change mailto Subject on mailing page at 'fanac-ThisPageName'")
                 return
 
             # Write the mailing file
