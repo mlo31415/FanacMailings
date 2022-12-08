@@ -6,6 +6,8 @@ import os
 import re
 import datetime
 
+from FanzineIssueSpecPackage import FanzineDate
+
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, NormalizePersonsName, Int0, DateMonthYear, FormatLink2
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
@@ -73,12 +75,32 @@ def main():
             return
 
         # Create a dictionary of mailings for this APA.  Indexed by the mailing number as a string.
-        @dataclass
         class MailingDev:
-            Number: str=""
-            Year: str=""
-            Month: str=""
-            Editor: str="Editor?"
+
+            def __init__(self, Number: str="", Year: str="", Month: str="", Editor: str=""):
+                self.Number: str=Number
+                self.Editor: str=Editor
+
+                fd=FanzineDate()
+                if Month != "":
+                    fd.Month=Month
+                if Year != "":
+                    fd.Year=Year
+                self.Date: FanzineDate=fd
+
+            @property
+            def Year(self) -> int:
+                return self.Date.Year
+            @Year.setter
+            def Year(self, y: int) -> None:
+                self.Date.Year=y
+
+            @property
+            def Month(self) -> int:
+                return self.Date.Month
+            @Month.setter
+            def Month(self, m: int) -> None:
+                self.Date.Month=m
 
         mailingsInfoTable[apaName]={}
         for md in mailingsdata:
@@ -194,13 +216,12 @@ def main():
             # </fanac-top></div>
             mailingPage=templateMailing
             start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-top")
-            number=""
             editor=""   #"editor?"
             when="" #"when?"
             if mailing in mailingInfo:
                 m=mailingInfo[mailing]
                 editor=f"OE: {NormalizePersonsName(m.Editor)}"
-                when=DateMonthYear(Int0(m.Month), Int0(m.Year))
+                when=m.Date.FormatDate("%B %Y")
                 number=m.Number
             else:
                 number=mailing
