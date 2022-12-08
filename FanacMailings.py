@@ -322,9 +322,9 @@ def main():
                 if len(end) > 0:
                     mid=bumpf+"<p>"
                     templateApa=start+mid+end
-            Log("Bumpf added to APA page")
+            Log(f"Bumpf added to {apa} page")
         else:
-            Log(f" No {fname} file found, so no bumpf added.")
+            Log(f" No {fname} file found, so no bumpf added to {apa} page.")
 
         templateApa=AddBoilerplate(templateApa, f"{apa} Mailings", f"{apa} mailings")
 
