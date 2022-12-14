@@ -278,19 +278,19 @@ def main():
             # Insert the new issues table into the template
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-rows", newtable)
             if not success:
-                LogError("Could not add issues table to mailing page at 'fanac-rows'")
+                LogError(f"Could not add issues table to mailing page {templateFilename} at 'fanac-rows'")
                 return
 
             # Insert the label for the button taking you up one level to all mailings for this APA
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-AllMailings", f"All {apa} mailings")
             if not success:
-                LogError("Could not change button text on mailing page at 'fanac-AllMailings'")
+                LogError(f"Could not change button text on mailing page {templateFilename} at 'fanac-AllMailings'")
                 return
 
             # Modify the Mailto: so that the page name appears as the subject
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-ThisPageName", f"{apa}:{mailing}")
             if not success:
-                LogError("Could not change mailto Subject on mailing page at 'fanac-ThisPageName'")
+                LogError(f"Could not change mailto Subject on mailing page {templateFilename} at 'fanac-ThisPageName'")
                 return
 
             # Write the mailing file
