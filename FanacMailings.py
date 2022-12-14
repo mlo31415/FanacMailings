@@ -9,7 +9,8 @@ import datetime
 from FanzineIssueSpecPackage import FanzineDate
 
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, NormalizePersonsName, Int0, DateMonthYear, FormatLink2
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, NormalizePersonsName, Int0, DateMonthYear
+from HelpersPackage import FindIndexOfStringInList
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -243,11 +244,12 @@ def main():
             pagesCol=mailingsheaders.index(("PageCount"))
             colsSelected=[]     # Retain the indexes of the selected headers to generate the table rows
             for col in range(len(colSelectionAndOrder)):
-                if colSelectionAndOrder[col] not in mailingsheaders:
-                    LogError(f"Can't find a column named '{colSelectionAndOrder[col]}' the headers list: [{mailingsheaders}]")
+                colindex=FindIndexOfStringInList(mailingsheaders, colSelectionAndOrder[col])
+                if colindex is None:
+                    LogError(f"Can't find a column named '{colSelectionAndOrder[col]}' in the headers list: [{mailingsheaders}]")
                     return
                 newtable+=f"<th>{colNaming[col]}</th>\n"
-                colsSelected.append(mailingsheaders.index(colSelectionAndOrder[col]))
+                colsSelected.append(colindex)
             newtable+="</tr>\n"
 
             # Sort the contributions into order by fanzine name
