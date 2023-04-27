@@ -14,12 +14,6 @@ from HelpersPackage import FindIndexOfStringInList
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
-# Function to find the index of a column header
-def ColIndex(headers: [str], header: str) -> int:
-    if header not in headers:
-        return -1
-    return headers.index(header)
-
 def main():
     LogOpen("log.txt", "log-ERRORS.txt")
     if not Settings().Load("FanacMailings settings.txt", MustExist=True, SuppressMessageBox=True):
@@ -58,19 +52,19 @@ def main():
         mailingsheaders=mailingsdata[0]
         mailingsdata=mailingsdata[1:]
 
-        issueCol=ColIndex(mailingsheaders, "Issue")
+        issueCol=FindIndexOfStringInList(mailingsheaders, "Issue")
         if issueCol == -1:
             LogError(f"{csvname} does not contain an 'Issue' column")
             return
-        monthCol=ColIndex(mailingsheaders, "Month")
+        monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
         if monthCol == -1:
             LogError(f"{csvname} does not contain an 'Month' column")
             return
-        yearCol=ColIndex(mailingsheaders, "Year")
+        yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
         if yearCol == -1:
             LogError(f"{csvname} does not contain an 'Year' column")
             return
-        editorCol=ColIndex(mailingsheaders, "Editor")
+        editorCol=FindIndexOfStringInList(mailingsheaders, "Editor")
         if editorCol == -1:
             LogError(f"{csvname} does not contain an 'Editor' column")
             return
@@ -128,7 +122,7 @@ def main():
         return
 
     mailingsheaders=mailingsdata[0]
-    mailingscol=ColIndex(mailingsheaders, "Mailings")
+    mailingscol=FindIndexOfStringInList(mailingsheaders, "Mailings")
     if mailingscol == -1:
         LogError(f"Could not find a 'Mailings' column in {mailingsheaders}")
         LogError(f"The column headers found were {mailingsheaders}")
