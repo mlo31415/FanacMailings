@@ -318,10 +318,14 @@ def main():
 
             # Insert the label for the button taking you to the previous mailing for this APA
             index=listOfMailings.index(mailing)
-            if index == 0:
-                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", f"No previous mailing")
-            else:
-                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", f"Previous Mailing (#{listOfMailings[index-1]})")
+            buttonText=f"No previous mailing"
+            link='"prev.html"'
+            if index > 0:
+                buttonText=f"Previous Mailing (#{listOfMailings[index-1]})"
+                link=f'"{listOfMailings[index-1]}.html"'
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", buttonText)
+            if success:
+                mailingPage=mailingPage.replace('"prev.html"', link)
             if not success:
                 LogError(f"Could not change prev button text on mailing page {templateFilename} at 'fanac-PrevMailing'")
                 return
@@ -334,12 +338,16 @@ def main():
 
             # Insert the label for the button taking you to the next mailing for this APA
             index=listOfMailings.index(mailing)
-            if index == len(listOfMailings)-1:
-                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", f"No next mailing")
-            else:
-                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", f"Next Mailing (#{listOfMailings[index+1]})")
+            buttonText=f"No next mailing"
+            link='"next.html"'
+            if index < len(listOfMailings)-1:
+                buttonText=f"Next Mailing (#{listOfMailings[index-1]})"
+                link=f'"{listOfMailings[index+1]}.html"'
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", buttonText)
+            if success:
+                mailingPage=mailingPage.replace('"next.html"', link)
             if not success:
-                LogError(f"Could not change prev button text on mailing page {templateFilename} at 'fanac-NextMailing'")
+                LogError(f"Could not change next button text on mailing page {templateFilename} at 'fanac-NextMailing'")
                 return
 
             # Modify the Mailto: so that the page name appears as the subject
