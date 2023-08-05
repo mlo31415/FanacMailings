@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections import defaultdict
 import csv
 import os
 import re
@@ -75,6 +75,8 @@ def main():
             def __init__(self, Number: str="", Year: str="", Month: str="", Editor: str=""):
                 self.Number: str=Number
                 self.Editor: str=Editor
+                self.Prev: str=""
+                self.Next: str=""
 
                 fd=FanzineDate()
                 if Month != "":
@@ -96,6 +98,7 @@ def main():
             @Month.setter
             def Month(self, m: int) -> None:
                 self.Date.Month=m
+        # --- end class MailingDev ---
 
         mailingsInfoTable[apaName]={}
         for md in mailingsdata:
@@ -122,30 +125,52 @@ def main():
         return
 
     mailingsheaders=mailingsdata[0]
-    mailingscol=FindIndexOfStringInList(mailingsheaders, "Mailings")
-    if mailingscol == -1:
-        LogError(f"Could not find a 'Mailings' column in {mailingsheaders}")
-        LogError(f"The column headers found were {mailingsheaders}")
-        return
+
+    def initialize(headers: list[str], row: list[str], item: str) -> str:
+        index=FindIndexOfStringInList(headers, item)
+        if index == -1:
+            return ""
+        return row[index]
+
+    #--------------------------------
+    class FanzineInMailing:
+        def __init__(self, headers: list[str], row: list[str]):
+            self.IssueName: str=initialize(headers, row, "IssueName")
+            self.Series: str=initialize(headers, row, "Series")
+            self.SeriesName: str=initialize(headers, row, "SeriesName")
+            self.DisplayName: str=initialize(headers, row, "DisplayName")
+            self.DirURL: str=initialize(headers, row, "DirURL")
+            self.PageName: str=initialize(headers, row, "PageName")
+            self.FIS: str=initialize(headers, row, "FIS")
+            self.Locale: str=initialize(headers, row, "Locale")
+            self.PageCount: str=initialize(headers, row, "PageCount")
+            self.Editor: str=initialize(headers, row, "Editor")
+            self.TagList: str=initialize(headers, row, "TagList")
+            self.Mailings: str=initialize(headers, row, "Mailings")
+    # --- end class FanzineInMailing ---
+
+    allFanzines: list[FanzineInMailing]=[]
+    for row in mailingsdata:
+        allFanzines.append(FanzineInMailing(mailingsheaders, row))
+
 
     # ---------------------------
     # Turn the data from FanacAnalyzer into a dictionary of the form dict(apa, dict(mailing, data))
-    apas: dict[str, dict[str, [str]]]={}
-    for row in mailingsdata:
+    apas: dict[str, dict[str, list[FanzineInMailing]]]=defaultdict(lambda: defaultdict(list))
+    for fanzine in allFanzines:
         # The mailings column is of the form   ['FAPA 20 & VAPA 23']
-        mailings=row[mailingscol]
-        mailings=mailings.removeprefix("['").removesuffix("']")
+        mailings=fanzine.Mailings.removeprefix("['").removesuffix("']")
         mailings=[x.strip() for x in mailings.split("&")]
         for mailing in mailings:
             for apa in knownApas:
                 m=re.match(f"{apa}\s(.*)$", mailing)
                 if m is not None:
-                    if apa not in apas.keys():
-                        apas[apa]={}
+                    # if apa not in apas.keys():
+                    #     apas[apa]={}
                     mailingnumber=m.groups()[0]
-                    if mailingnumber not in apas[apa].keys():
-                        apas[apa][mailingnumber]=[]
-                    apas[apa][m.groups()[0]].append(row)
+                    # if mailingnumber not in apas[apa].keys():
+                    #     apas[apa][mailingnumber]=[]
+                    apas[apa][m.groups()[0]].append(fanzine)
 
     # ------------------
     # We've slurped in all the data.  Now create the index files for each issue
@@ -156,18 +181,6 @@ def main():
         return
     if not os.path.exists(reportsdir):
         os.mkdir(reportsdir)
-
-    # Read the mailing template file
-    templateFilename=Settings().Get("Template-Mailing")
-    if len(templateFilename) == 0:
-        LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-Mailing (the name of the template file for an individual mailing page)")
-        return
-    try:
-        with open(templateFilename, "r") as file:
-            templateMailing="".join(file.readlines())
-    except FileNotFoundError:
-        LogError(f"Could not open the mailing template file: '{templateFilename}'")
-        return
 
     # All the pages we generate here need the same kinds of information to be added:
     #   Page title
@@ -185,6 +198,33 @@ def main():
         # Add the updated date/time
         page, success=FindAndReplaceBracketedText(page, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}")
         return page
+    # --- end class AddBoilerplate ---
+
+
+    # Read the mailing and APA template files
+    templateFilename=Settings().Get("Template-Mailing")
+    if len(templateFilename) == 0:
+        LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-Mailing (the name of the template file for an individual mailing page)")
+        return
+    try:
+        with open(templateFilename, "r") as file:
+            templateMailing="".join(file.readlines())
+    except FileNotFoundError:
+        LogError(f"Could not open the mailing template file: '{templateFilename}'")
+        return
+
+    # Read the apa template file
+    templateFilename=Settings().Get("Template-APA")
+    if len(templateFilename) == 0:
+        LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-APA (the template for an APA page)")
+        return
+    try:
+        with open(templateFilename, "r") as file:
+            templateApa="".join(file.readlines())
+    except FileNotFoundError:
+        LogError(f"Could not open the APA template file, '{templateFilename}'")
+        return
+
 
     # Walk through the info from FanacAnalyzer.
     # For each APA that we found there:
@@ -196,13 +236,19 @@ def main():
         if not os.path.exists(os.path.join(reportsdir, apa)):
             os.mkdir(os.path.join(reportsdir, apa))
 
-        mailingInfo={}
+        mailingInfo: dict[str, MailingDev]={}
         if apa in mailingsInfoTable:
             mailingInfo=mailingsInfoTable[apa]
 
-        # For each mailing of that APA generate a mailing page.
         # Also accumulate the info needed to produce the apa page
-        listOfMailings=[]
+        listOfMailings: list[str]=[]
+        for mailing in apas[apa]:
+            listOfMailings.append(mailing)
+        # Now sort the accumulation of mailings into numerical order.
+        # This will be used to create the prev/next links in individual mailing pages and also to create the APA's page
+        listOfMailings=sorted(listOfMailings, key=lambda x: SortMessyNumber(x))
+
+        # For each mailing of that APA generate a mailing page.
         for mailing in apas[apa]:
 
             # Do a mailing page
@@ -220,10 +266,10 @@ def main():
             editor=""   #"editor?"
             when="" #"when?"
             if mailing in mailingInfo:
-                m=mailingInfo[mailing]
-                editor=f"OE: {NormalizePersonsName(m.Editor)}"
-                when=m.Date.FormatDate("%B %Y")
-                number=m.Number
+                mi=mailingInfo[mailing]
+                editor=f"OE: {NormalizePersonsName(mi.Editor)}"
+                when=mi.Date.FormatDate("%B %Y")
+                number=mi.Number
             else:
                 number=mailing
             mid=mid.replace("editor", editor)
@@ -237,35 +283,30 @@ def main():
             newtable="<tr>\n"
             # Generate the header row, selecting only those headers which are in this dict:
             colSelectionAndOrder=["IssueName", "Editor", "PageCount"]   # The columns to be displayed in order
-            colNaming=["Contribution", "Editor", "Pages"]      # The corresponding column names
-            linkCol=mailingsheaders.index("IssueName")   # The column to have the link to the issue
-            seriesUrlCol=mailingsheaders.index("DirURL")   # The column containing the full URL of the issue's directory'
-            issueUrlCol=mailingsheaders.index("PageName")   # The column containing the issue's URL (just the issue, not the issue's directory)
-            pagesCol=mailingsheaders.index(("PageCount"))
-            colsSelected=[]     # Retain the indexes of the selected headers to generate the table rows
-            for col in range(len(colSelectionAndOrder)):
-                colindex=FindIndexOfStringInList(mailingsheaders, colSelectionAndOrder[col])
-                if colindex is None:
-                    LogError(f"Can't find a column named '{colSelectionAndOrder[col]}' in the headers list: [{mailingsheaders}]")
-                    return
-                newtable+=f"<th>{colNaming[col]}</th>\n"
-                colsSelected.append(colindex)
+
+            newtable+="<th>Contribution</th>\n"
+            newtable+="<th>Editor</th>\n"
+            newtable+="<th>Pages</th>\n"
             newtable+="</tr>\n"
 
             # Sort the contributions into order by fanzine name
-            apas[apa][mailing]=sorted(apas[apa][mailing], key=lambda x: SortTitle(x[0]))
+            apas[apa][mailing]=sorted(apas[apa][mailing], key=lambda x: SortTitle(x.IssueName))
 
             # Now generate the data rows in the mailings table
             for row in apas[apa][mailing]:
                 newtable+="<tr>\n"
-                for col in colsSelected:
-                    if col == linkCol:
-                        fullUrl=row[seriesUrlCol]+"/"+row[issueUrlCol]
-                        newtable+=f"<td><a href={fullUrl}>{row[col]}</a></td>\n"
-                    elif col == pagesCol:
-                        newtable+=f"<td style='text-align: right'>{row[col]}&nbsp;&nbsp;</td>"
-                    else:
-                        newtable+=f"<td>{row[col]}</td>\n"
+                if row.DirURL != "" and row.PageName != "":
+                    newtable+=f"<td><a href={row.DirURL}/{row.PageName}>{row.IssueName}</a></td>\n"
+                else:
+                    newtable+=f"<td>&nbsp;</td>\n"
+                if row.Editor != "":
+                    newtable+=f"<td>{row.Editor}&nbsp;&nbsp;</td>"
+                else:
+                    newtable+=f"<td>&nbsp;</td>\n"
+                if row.PageCount != "":
+                    newtable+=f"<td>{row.PageCount}</td>\n"
+                else:
+                    newtable+=f"<td>&nbsp;</td>\n"
                 newtable+="</tr>\n"
             newtable=newtable.replace("\\", "/")
 
@@ -275,44 +316,51 @@ def main():
                 LogError(f"Could not add issues table to mailing page {templateFilename} at 'fanac-rows'")
                 return
 
+            # Insert the label for the button taking you to the previous mailing for this APA
+            index=listOfMailings.index(mailing)
+            if index == 0:
+                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", f"No previous mailing")
+            else:
+                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", f"Previous Mailing (#{listOfMailings[index-1]})")
+            if not success:
+                LogError(f"Could not change prev button text on mailing page {templateFilename} at 'fanac-PrevMailing'")
+                return
+
             # Insert the label for the button taking you up one level to all mailings for this APA
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-AllMailings", f"All {apa} mailings")
             if not success:
-                LogError(f"Could not change button text on mailing page {templateFilename} at 'fanac-AllMailings'")
+                LogError(f"Could not change up to APA button text on mailing page {templateFilename} at 'fanac-AllMailings'")
+                return
+
+            # Insert the label for the button taking you to the next mailing for this APA
+            index=listOfMailings.index(mailing)
+            if index == len(listOfMailings)-1:
+                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", f"No next mailing")
+            else:
+                mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", f"Next Mailing (#{listOfMailings[index+1]})")
+            if not success:
+                LogError(f"Could not change prev button text on mailing page {templateFilename} at 'fanac-NextMailing'")
                 return
 
             # Modify the Mailto: so that the page name appears as the subject
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-ThisPageName", f"{apa}:{mailing}")
             if not success:
                 LogError(f"Could not change mailto Subject on mailing page {templateFilename} at 'fanac-ThisPageName'")
-                return
+                #return
 
             # Write the mailing file
             with open(os.path.join(reportsdir, apa, mailing)+".html", "w") as file:
                 mailingPage=mailingPage.split("/n")
                 file.writelines(mailingPage)
 
-            # Also append to the accumulator for the apa page
-            listOfMailings.append((mailing, None))  # To be expanded
 
         #------------------------------
         # Now that the mailing pages are all done, do an apa page
-        # Read the apa template file
-        templateFilename=Settings().Get("Template-APA")
-        if len(templateFilename) == 0:
-            LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-APA (the template for an APA page)")
-            return
-        try:
-            with open(templateFilename, "r") as file:
-                templateApa="".join(file.readlines())
-        except FileNotFoundError:
-            LogError(f"Could not open the APA template file, '{templateFilename}'")
-            return
 
         # Add the APA's name at the top
         start, mid, end=ParseFirstStringBracketedText(templateApa, "fanac-top")
         mid=mid.replace("apa-name", apa)
-        templateApa=start+mid+end
+        newAPAPage=start+mid+end
 
         # Add random descriptive information if a file <apa>-bumpf.txt exists.  (E.g., SAPS-bumpf.txt)
         fname=apa+"-bumpf.txt"
@@ -320,62 +368,60 @@ def main():
             with open(fname, "r") as file:
                 bumpf=file.read()
             if len(bumpf) > 0:
-                start, mid, end=ParseFirstStringBracketedText(templateApa, "fanac-bumpf")
+                start, mid, end=ParseFirstStringBracketedText(newAPAPage, "fanac-bumpf")
                 if len(end) > 0:
                     mid=bumpf+"<p>"
-                    templateApa=start+mid+end
+                    newAPAPage=start+mid+end
             Log(f"Bumpf added to {apa} page")
         else:
             Log(f" No {fname} file found, so no bumpf added to {apa} page.")
 
-        templateApa=AddBoilerplate(templateApa, f"{apa} Mailings", f"{apa} mailings")
+        newAPAPage=AddBoilerplate(newAPAPage, f"{apa} Mailings", f"{apa} mailings")
 
-        loc=templateApa.find("</fanac-rows>")
+        loc=newAPAPage.find("</fanac-rows>")
         if loc < 0:
             LogError(f"The APA template '{templateFilename}' is missing the '</fanac-rows>' indicator.")
             return
-        templateApaFront=templateApa[:loc]
-        templateApaRear=templateApa[loc+len("</fanac-rows>"):]
+        newAPAPageFront=newAPAPage[:loc]
+        newAPAPageRear=newAPAPage[loc+len("</fanac-rows>"):]
 
 
-        # Now sort the accumulation of mailings into numerical order and create the apa page
-        listOfMailings=sorted(listOfMailings, key=lambda x: SortMessyNumber(x[0]))
-        for mailingTuple in listOfMailings:
-            mailing=mailingTuple[0]
+        for mailing in listOfMailings:
             editor=""   #"editor?"
             when="" #"when?"
             if mailing in mailingInfo:
-                m=mailingInfo[mailing]
-                editor=NormalizePersonsName(m.Editor)
-                when=DateMonthYear(Int0(m.Month), Int0(m.Year))
+                mlng=mailingInfo[mailing]
+                editor=NormalizePersonsName(mlng.Editor)
+                when=DateMonthYear(Int0(mlng.Date.Month), Int0(mlng.Date.Year))
 
-            templateApaFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td style='text-align: right'>{len(apas[apa][mailing])}&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>"
+            newAPAPageFront+=f"\n<tr><td><a href={mailing}.html>{mailing}</a></td><td>{when}</td><td>{editor}</td><td style='text-align: right'>{len(apas[apa][mailing])}&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>"
 
-        templateApa=templateApaFront+templateApaRear
+        newAPAPage=newAPAPageFront+newAPAPageRear
 
         # Add counts of mailings and contributions to bottom
-        start, mid, end=ParseFirstStringBracketedText(templateApa, "fanac-totals")
+        start, mid, end=ParseFirstStringBracketedText(newAPAPage, "fanac-totals")
         numConts=0
-        for mailingTuple in listOfMailings:
-            numConts+=len(apas[apa][mailingTuple[0]])
+        for mailing in listOfMailings:
+            numConts+=len(apas[apa][mailing])
 
         mid=f"{len(listOfMailings)} mailings containing {numConts} individual contributions"
-        templateApa=start+mid+end
+        newAPAPage=start+mid+end
 
         # Add the updated date/time
-        templateApa, success=FindAndReplaceBracketedText(templateApa, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
+        newAPAPage, success=FindAndReplaceBracketedText(newAPAPage, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
 
         # Make the mailto correctly list the apa in the subject line
-        templateApa, success=FindAndReplaceBracketedText(templateApa, "fanac-APAPageMailto", f"Issue related to APA {apa}")
+        newAPAPage, success=FindAndReplaceBracketedText(newAPAPage, "fanac-APAPageMailto", f"Issue related to APA {apa}")
         if not success:
             LogError(f"The APA template '{templateFilename}' is missing the '</fanac-APAPageMailto>' indicator.")
             return
 
         # Write out the APA list of all mailings
         with open(os.path.join(reportsdir, apa, "index.html"), "w") as file:
-            file.writelines(templateApa)
+            file.writelines(newAPAPage)
 
-    #--------------------------------------------
+
+    #########################################################################
     # Generate the All Apas root page
     templateFilename=Settings().Get("Template-allAPAs")
     if len(templateFilename) == 0:
@@ -398,6 +444,7 @@ def main():
 
     with open(os.path.join(reportsdir, "index.html"), "w") as file:
         file.writelines(templateAllApas)
+
 
 # Run main()
 if __name__ == "__main__":
