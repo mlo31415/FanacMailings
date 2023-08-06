@@ -321,7 +321,7 @@ def main():
             buttonText=f"No previous mailing"
             link='"prev.html"'
             if index > 0:
-                buttonText=f"Previous Mailing (#{listOfMailings[index-1]})"
+                buttonText=f" Prev Mailing (#{listOfMailings[index-1]})"
                 link=f'"{listOfMailings[index-1]}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", buttonText)
             if success:
@@ -341,7 +341,7 @@ def main():
             buttonText=f"No next mailing"
             link='"next.html"'
             if index < len(listOfMailings)-1:
-                buttonText=f"Next Mailing (#{listOfMailings[index-1]})"
+                buttonText=f" Next Mailing (#{listOfMailings[index+1]}) "
                 link=f'"{listOfMailings[index+1]}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", buttonText)
             if success:

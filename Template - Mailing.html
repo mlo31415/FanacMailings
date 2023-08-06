@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 <style>
 .topmatter {
   border: 0px;
@@ -120,15 +121,16 @@ table, th, td {
 	</div>
 </div> <!-- /Blue buttons container -->
 <div align="left">  <!-- Search -->
-	<a href="https://fanac.org/Google/">
-	<img class="img-responsive" src="search.jpeg"></a> 
+		<a href="https://fanac.org/Google/" class="btn btn-warning  btn-sm">
+		<span class="glyphicon glyphicon-search"></span> 	Search</a>
+
 </div>  <!-- /Search -->
 </div>
   <fanac-parent>
   <div class="Container&quot;" align="seft">
-	<a href="prev.html" class="btn btn-success"><fanac-PrevMailing>Previous Mailing</fanac-PrevMailing></a>
-	<a href="index.html" class="btn btn-success"><fanac-AllMailings>All FAPA Mailings</fanac-AllMailings></a>
-	<a href="next.html" class="btn btn-success"><fanac-NextMailing>Next Mailings</fanac-NextMailing></a>
+	<a href="prev.html" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-arrow-left"></span><fanac-PrevMailing>Previous Mailing</fanac-PrevMailing></a>
+	<a href="index.html" class="btn btn-info btn-sm "><span class="glyphicon glyphicon-arrow-up"><fanac-AllMailings>All FAPA Mailings</fanac-AllMailings><span class="glyphicon glyphicon-arrow-up"></a>
+	<a href="next.html" class="btn btn-info btn-sm "><span class="glyphicon glyphicon-arrow-right"></span><fanac-NextMailing>Next Mailings</fanac-NextMailing></a>
 </div>
 </fanac-parent>
 <div>
