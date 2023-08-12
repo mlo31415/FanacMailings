@@ -35,80 +35,6 @@ def main():
         return
     knownApas=[x.replace('"', '').strip() for x in knownApas.split(",")]
 
-    # Entry in a dictionary of mailings for an APA.
-    class MailingDev:
-        def __init__(self, Number: str = "", Year: str = "", Month: str = "", Editor: str = ""):
-            self.Number: str=Number
-            self.Editor: str=Editor
-            self.Prev: str=""
-            self.Next: str=""
-
-            fd=FanzineDate()
-            if Month != "":
-                fd.Month=Month
-            if Year != "":
-                fd.Year=Year
-            self.Date: FanzineDate=fd
-
-        @property
-        def Year(self) -> int:
-            return self.Date.Year
-
-        @Year.setter
-        def Year(self, y: int) -> None:
-            self.Date.Year=y
-
-        @property
-        def Month(self) -> int:
-            return self.Date.Month
-
-        @Month.setter
-        def Month(self, m: int) -> None:
-            self.Date.Month=m
-
-    # --- end class MailingDev ---
-
-    def ReadCSV(apaName: str) -> Optional[dict[str, MailingDev]]:
-        csvname=apaName+".csv"
-        # Skip missing csv files
-        if not os.path.exists(csvname):
-            return None
-        # Read the csv file
-        try:
-            with open(csvname, 'r') as csvfile:
-                # Read it into a list of lists
-                filereader=csv.reader(csvfile, delimiter=',', quotechar='"')
-                mailingsdata=[x for x in filereader]
-        except FileNotFoundError:
-            LogError(f"Could not open CSV file {csvname}")
-            return None
-        # Separate out the header row
-        mailingsheaders=mailingsdata[0]
-        mailingsdata=mailingsdata[1:]
-
-        monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
-        if monthCol is None:
-            LogError(f"{csvname} does not contain an 'Month' column")
-            return None
-        yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
-        if yearCol is None:
-            LogError(f"{csvname} does not contain an 'Year' column")
-            return None
-        editorCol=FindIndexOfStringInList(mailingsheaders, ["Editor", "OE"])
-        if editorCol is None:
-            LogError(f"{csvname} does not contain an 'Editor' column")
-            return None
-        mailingCol=FindIndexOfStringInList(mailingsheaders, ["Mailing", "Issue"])
-        if mailingCol is None:
-            LogError(f"{csvname} does not contain a 'Mailing' or an 'Issue' column")
-            return None
-
-        mailingsInfo={}
-        for md in mailingsdata:
-            mailingNum=md[mailingCol]
-            mailingsInfo[mailingNum]=MailingDev(Number=mailingNum, Year=md[yearCol], Month=md[monthCol], Editor=md[editorCol])
-        return mailingsInfo
-
     # ---------------
     # for each known apa, read Joe's APA mailings data if it exists
     for apaName in knownApas:
@@ -406,7 +332,6 @@ def main():
         newAPAPageFront=newAPAPage[:loc]
         newAPAPageRear=newAPAPage[loc+len("</fanac-rows>"):]
 
-
         for mailing in listOfMailings:
             editor=""   #"editor?"
             when="" #"when?"
@@ -465,6 +390,126 @@ def main():
 
     with open(os.path.join(reportsdir, "index.html"), "w") as file:
         file.writelines(templateAllApas)
+
+
+######################################################################
+
+# Entry in a dictionary of mailings for an APA.
+class MailingDev:
+    def __init__(self, Number: str = "", Year: str = "", Month: str = "", Editor: str = ""):
+        self.Number: str=Number
+        self.Editor: str=Editor
+        self.Prev: str=""
+        self.Next: str=""
+
+        fd=FanzineDate()
+        if Month != "":
+            fd.Month=Month
+        if Year != "":
+            fd.Year=Year
+        self.Date: FanzineDate=fd
+
+    @property
+    def Year(self) -> int:
+        return self.Date.Year
+
+    @Year.setter
+    def Year(self, y: int) -> None:
+        self.Date.Year=y
+
+    @property
+    def Month(self) -> int:
+        return self.Date.Month
+
+    @Month.setter
+    def Month(self, m: int) -> None:
+        self.Date.Month=m
+
+# --- end class MailingDev ---
+
+
+def ReadCSV(apaName: str) -> Optional[dict[str, MailingDev]]:
+    csvname=apaName+".csv"
+    # Skip missing csv files
+    if not os.path.exists(csvname):
+        return None
+    # Read the csv file
+    try:
+        with open(csvname, 'r') as csvfile:
+            # Read it into a list of lists
+            filereader=csv.reader(csvfile, delimiter=',', quotechar='"')
+            mailingsdata=[x for x in filereader]
+    except FileNotFoundError:
+        LogError(f"Could not open CSV file {csvname}")
+        return None
+    # Separate out the header row
+    mailingsheaders=mailingsdata[0]
+    mailingsdata=mailingsdata[1:]
+
+    monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
+    if monthCol is None:
+        LogError(f"{csvname} does not contain an 'Month' column")
+        return None
+    yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
+    if yearCol is None:
+        LogError(f"{csvname} does not contain an 'Year' column")
+        return None
+    editorCol=FindIndexOfStringInList(mailingsheaders, ["Editor", "OE"])
+    if editorCol is None:
+        LogError(f"{csvname} does not contain an 'Editor' column")
+        return None
+    mailingCol=FindIndexOfStringInList(mailingsheaders, ["Mailing", "Issue"])
+    if mailingCol is None:
+        LogError(f"{csvname} does not contain a 'Mailing' or an 'Issue' column")
+        return None
+
+    mailingsInfo={}
+    for md in mailingsdata:
+        mailingNum=md[mailingCol]
+        mailingsInfo[mailingNum]=MailingDev(Number=mailingNum, Year=md[yearCol], Month=md[monthCol], Editor=md[editorCol])
+    return mailingsInfo
+
+
+def ReadCSV(apaName: str) -> Optional[dict[str, MailingDev]]:
+    csvname=apaName+".csv"
+    # Skip missing csv files
+    if not os.path.exists(csvname):
+        return None
+    # Read the csv file
+    try:
+        with open(csvname, 'r') as csvfile:
+            # Read it into a list of lists
+            filereader=csv.reader(csvfile, delimiter=',', quotechar='"')
+            mailingsdata=[x for x in filereader]
+    except FileNotFoundError:
+        LogError(f"Could not open CSV file {csvname}")
+        return None
+    # Separate out the header row
+    mailingsheaders=mailingsdata[0]
+    mailingsdata=mailingsdata[1:]
+
+    monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
+    if monthCol is None:
+        LogError(f"{csvname} does not contain an 'Month' column")
+        return None
+    yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
+    if yearCol is None:
+        LogError(f"{csvname} does not contain an 'Year' column")
+        return None
+    editorCol=FindIndexOfStringInList(mailingsheaders, ["Editor", "OE"])
+    if editorCol is None:
+        LogError(f"{csvname} does not contain an 'Editor' column")
+        return None
+    mailingCol=FindIndexOfStringInList(mailingsheaders, ["Mailing", "Issue"])
+    if mailingCol is None:
+        LogError(f"{csvname} does not contain a 'Mailing' or an 'Issue' column")
+        return None
+
+    mailingsInfo={}
+    for md in mailingsdata:
+        mailingNum=md[mailingCol]
+        mailingsInfo[mailingNum]=MailingDev(Number=mailingNum, Year=md[yearCol], Month=md[monthCol], Editor=md[editorCol])
+    return mailingsInfo
 
 
 # Run main()
