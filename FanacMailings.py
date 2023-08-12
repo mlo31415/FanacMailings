@@ -451,15 +451,15 @@ def ReadXLSX(apaName: str) -> Optional[dict[str, MailingDev]]:
 
     monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
     if monthCol is None:
-        LogError(f"{xlsxname} does not contain an 'Month' column")
+        LogError(f"{xlsxname} does not contain a 'Month' column")
         return None
     yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
     if yearCol is None:
-        LogError(f"{xlsxname} does not contain an 'Year' column")
+        LogError(f"{xlsxname} does not contain a 'Year' column")
         return None
     editorCol=FindIndexOfStringInList(mailingsheaders, ["Editor", "OE"])
     if editorCol is None:
-        LogError(f"{xlsxname} does not contain an 'Editor' column")
+        LogError(f"{xlsxname} does not contain an 'Editor' or an 'OE' column")
         return None
     mailingCol=FindIndexOfStringInList(mailingsheaders, ["Mailing", "Issue"])
     if mailingCol is None:
