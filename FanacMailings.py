@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from typing import Optional
 from collections import defaultdict
 import csv
 import os
 import re
 import datetime
+
+from openpyxl import Workbook
 
 from FanzineIssueSpecPackage import FanzineDate
 
@@ -32,13 +35,44 @@ def main():
         return
     knownApas=[x.replace('"', '').strip() for x in knownApas.split(",")]
 
-    # ---------------
-    # for each known apa, read Joe's APA mailings data if it exists
-    for apaName in knownApas:
+    # Entry in a dictionary of mailings for an APA.
+    class MailingDev:
+        def __init__(self, Number: str = "", Year: str = "", Month: str = "", Editor: str = ""):
+            self.Number: str=Number
+            self.Editor: str=Editor
+            self.Prev: str=""
+            self.Next: str=""
+
+            fd=FanzineDate()
+            if Month != "":
+                fd.Month=Month
+            if Year != "":
+                fd.Year=Year
+            self.Date: FanzineDate=fd
+
+        @property
+        def Year(self) -> int:
+            return self.Date.Year
+
+        @Year.setter
+        def Year(self, y: int) -> None:
+            self.Date.Year=y
+
+        @property
+        def Month(self) -> int:
+            return self.Date.Month
+
+        @Month.setter
+        def Month(self, m: int) -> None:
+            self.Date.Month=m
+
+    # --- end class MailingDev ---
+
+    def ReadCSV(apaName: str) -> Optional[dict[str, MailingDev]]:
         csvname=apaName+".csv"
         # Skip missing csv files
-        if not os.path.exists(apaName+".csv"):
-            continue
+        if not os.path.exists(csvname):
+            return None
         # Read the csv file
         try:
             with open(csvname, 'r') as csvfile:
@@ -47,62 +81,41 @@ def main():
                 mailingsdata=[x for x in filereader]
         except FileNotFoundError:
             LogError(f"Could not open CSV file {csvname}")
-            return
+            return None
         # Separate out the header row
         mailingsheaders=mailingsdata[0]
         mailingsdata=mailingsdata[1:]
 
-        issueCol=FindIndexOfStringInList(mailingsheaders, "Issue")
-        if issueCol == -1:
-            LogError(f"{csvname} does not contain an 'Issue' column")
-            return
         monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
-        if monthCol == -1:
+        if monthCol is None:
             LogError(f"{csvname} does not contain an 'Month' column")
-            return
+            return None
         yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
-        if yearCol == -1:
+        if yearCol is None:
             LogError(f"{csvname} does not contain an 'Year' column")
-            return
-        editorCol=FindIndexOfStringInList(mailingsheaders, "Editor")
-        if editorCol == -1:
+            return None
+        editorCol=FindIndexOfStringInList(mailingsheaders, ["Editor", "OE"])
+        if editorCol is None:
             LogError(f"{csvname} does not contain an 'Editor' column")
-            return
+            return None
+        mailingCol=FindIndexOfStringInList(mailingsheaders, ["Mailing", "Issue"])
+        if mailingCol is None:
+            LogError(f"{csvname} does not contain a 'Mailing' or an 'Issue' column")
+            return None
 
-        # Create a dictionary of mailings for this APA.  Indexed by the mailing number as a string.
-        class MailingDev:
-
-            def __init__(self, Number: str="", Year: str="", Month: str="", Editor: str=""):
-                self.Number: str=Number
-                self.Editor: str=Editor
-                self.Prev: str=""
-                self.Next: str=""
-
-                fd=FanzineDate()
-                if Month != "":
-                    fd.Month=Month
-                if Year != "":
-                    fd.Year=Year
-                self.Date: FanzineDate=fd
-
-            @property
-            def Year(self) -> int:
-                return self.Date.Year
-            @Year.setter
-            def Year(self, y: int) -> None:
-                self.Date.Year=y
-
-            @property
-            def Month(self) -> int:
-                return self.Date.Month
-            @Month.setter
-            def Month(self, m: int) -> None:
-                self.Date.Month=m
-        # --- end class MailingDev ---
-
-        mailingsInfoTable[apaName]={}
+        mailingsInfo={}
         for md in mailingsdata:
-            mailingsInfoTable[apaName][md[1]]=MailingDev(Number=md[issueCol], Year=md[yearCol], Month=md[monthCol], Editor=md[editorCol])
+            mailingNum=md[mailingCol]
+            mailingsInfo[mailingNum]=MailingDev(Number=mailingNum, Year=md[yearCol], Month=md[monthCol], Editor=md[editorCol])
+        return mailingsInfo
+
+    # ---------------
+    # for each known apa, read Joe's APA mailings data if it exists
+    for apaName in knownApas:
+        table=ReadCSV(apaName)
+        if table is None:
+            table={}
+        mailingsInfoTable[apaName]=table
 
 
     # ---------------
