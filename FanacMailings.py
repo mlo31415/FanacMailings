@@ -7,7 +7,7 @@ import os
 import re
 import datetime
 
-from openpyxl import Workbook
+import openpyxl
 
 from FanzineIssueSpecPackage import FanzineDate
 
@@ -38,9 +38,11 @@ def main():
     # ---------------
     # for each known apa, read Joe's APA mailings data if it exists
     for apaName in knownApas:
-        table=ReadCSV(apaName)
+        table=ReadXLSX(apaName)
         if table is None:
-            table={}
+            table=ReadCSV(apaName)
+            if table is None:
+                table={}
         mailingsInfoTable[apaName]=table
 
 
@@ -470,45 +472,52 @@ def ReadCSV(apaName: str) -> Optional[dict[str, MailingDev]]:
     return mailingsInfo
 
 
-def ReadCSV(apaName: str) -> Optional[dict[str, MailingDev]]:
-    csvname=apaName+".csv"
-    # Skip missing csv files
-    if not os.path.exists(csvname):
+def ReadXLSX(apaName: str) -> Optional[dict[str, MailingDev]]:
+    xlsxname=apaName+".xlsx"
+    # Skip missing xlsx files
+    if not os.path.exists(xlsxname):
         return None
     # Read the csv file
     try:
-        with open(csvname, 'r') as csvfile:
-            # Read it into a list of lists
-            filereader=csv.reader(csvfile, delimiter=',', quotechar='"')
-            mailingsdata=[x for x in filereader]
+        wb=openpyxl.load_workbook(filename=xlsxname)
     except FileNotFoundError:
-        LogError(f"Could not open CSV file {csvname}")
+        LogError(f"Could not open xlsx file {xlsxname}")
         return None
+
+
+    ws=wb.active
     # Separate out the header row
-    mailingsheaders=mailingsdata[0]
-    mailingsdata=mailingsdata[1:]
+    mailingsheaders=[x.value for x in ws[1]]
 
     monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
     if monthCol is None:
-        LogError(f"{csvname} does not contain an 'Month' column")
+        LogError(f"{xlsxname} does not contain an 'Month' column")
         return None
     yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
     if yearCol is None:
-        LogError(f"{csvname} does not contain an 'Year' column")
+        LogError(f"{xlsxname} does not contain an 'Year' column")
         return None
     editorCol=FindIndexOfStringInList(mailingsheaders, ["Editor", "OE"])
     if editorCol is None:
-        LogError(f"{csvname} does not contain an 'Editor' column")
+        LogError(f"{xlsxname} does not contain an 'Editor' column")
         return None
     mailingCol=FindIndexOfStringInList(mailingsheaders, ["Mailing", "Issue"])
     if mailingCol is None:
-        LogError(f"{csvname} does not contain a 'Mailing' or an 'Issue' column")
+        LogError(f"{xlsxname} does not contain a 'Mailing' or an 'Issue' column")
         return None
 
     mailingsInfo={}
-    for md in mailingsdata:
-        mailingNum=md[mailingCol]
-        mailingsInfo[mailingNum]=MailingDev(Number=mailingNum, Year=md[yearCol], Month=md[monthCol], Editor=md[editorCol])
+    for i in range(2, 10000):
+        row=[x.value for x in ws[i]]
+        if all([x is None for x in row]):
+            break
+        mailingNum=row[mailingCol]
+        if type(mailingNum) is int:
+            mailingNum=str(mailingNum)  # Standard is to treat mailing number as a string, because sometimes it has to be
+        editor=row[editorCol]
+        if editor is None:
+            editor=""
+        mailingsInfo[mailingNum]=MailingDev(Number=mailingNum, Year=row[yearCol], Month=row[monthCol], Editor=editor)
     return mailingsInfo
 
 
