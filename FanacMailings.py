@@ -40,9 +40,7 @@ def main():
     for apaName in knownApas:
         table=ReadXLSX(apaName)
         if table is None:
-            table=ReadCSV(apaName)
-            if table is None:
-                table={}
+            table={}
         mailingsInfoTable[apaName]=table
 
 
@@ -430,54 +428,13 @@ class MailingDev:
 # --- end class MailingDev ---
 
 
-def ReadCSV(apaName: str) -> Optional[dict[str, MailingDev]]:
-    csvname=apaName+".csv"
-    # Skip missing csv files
-    if not os.path.exists(csvname):
-        return None
-    # Read the csv file
-    try:
-        with open(csvname, 'r') as csvfile:
-            # Read it into a list of lists
-            filereader=csv.reader(csvfile, delimiter=',', quotechar='"')
-            mailingsdata=[x for x in filereader]
-    except FileNotFoundError:
-        LogError(f"Could not open CSV file {csvname}")
-        return None
-    # Separate out the header row
-    mailingsheaders=mailingsdata[0]
-    mailingsdata=mailingsdata[1:]
-
-    monthCol=FindIndexOfStringInList(mailingsheaders, "Month")
-    if monthCol is None:
-        LogError(f"{csvname} does not contain an 'Month' column")
-        return None
-    yearCol=FindIndexOfStringInList(mailingsheaders, "Year")
-    if yearCol is None:
-        LogError(f"{csvname} does not contain an 'Year' column")
-        return None
-    editorCol=FindIndexOfStringInList(mailingsheaders, ["Editor", "OE"])
-    if editorCol is None:
-        LogError(f"{csvname} does not contain an 'Editor' column")
-        return None
-    mailingCol=FindIndexOfStringInList(mailingsheaders, ["Mailing", "Issue"])
-    if mailingCol is None:
-        LogError(f"{csvname} does not contain a 'Mailing' or an 'Issue' column")
-        return None
-
-    mailingsInfo={}
-    for md in mailingsdata:
-        mailingNum=md[mailingCol]
-        mailingsInfo[mailingNum]=MailingDev(Number=mailingNum, Year=md[yearCol], Month=md[monthCol], Editor=md[editorCol])
-    return mailingsInfo
-
-
 def ReadXLSX(apaName: str) -> Optional[dict[str, MailingDev]]:
-    xlsxname=apaName+".xlsx"
+    xlsxname="APA Mailings.xlsx"
     # Skip missing xlsx files
     if not os.path.exists(xlsxname):
+        LogError("Can't find {xlsxname}")
         return None
-    # Read the csv file
+    # Read the apa mailings file
     try:
         wb=openpyxl.load_workbook(filename=xlsxname)
     except FileNotFoundError:
@@ -485,7 +442,10 @@ def ReadXLSX(apaName: str) -> Optional[dict[str, MailingDev]]:
         return None
 
 
-    ws=wb.active
+    if apaName not in wb.sheetnames:
+        return None
+    ws=wb[apaName]
+
     # Separate out the header row
     mailingsheaders=[x.value for x in ws[1]]
 
