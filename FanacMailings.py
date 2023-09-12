@@ -257,8 +257,8 @@ def main():
 
             # Insert the label for the button taking you to the previous mailing for this APA
             index=listOfMailings.index(mailing)
-            buttonText=f"No previous mailing"
-            link='"prev.html"'
+            buttonText=f" No previous mailing"
+            link=f'"{listOfMailings[index]}.html"'
             if index > 0:
                 buttonText=f" Prev Mailing (#{listOfMailings[index-1]})"
                 link=f'"{listOfMailings[index-1]}.html"'
@@ -277,8 +277,8 @@ def main():
 
             # Insert the label for the button taking you to the next mailing for this APA
             index=listOfMailings.index(mailing)
-            buttonText=f"No next mailing"
-            link='"next.html"'
+            buttonText=f"No next mailing "
+            link=f'"{listOfMailings[index]}.html"'
             if index < len(listOfMailings)-1:
                 buttonText=f" Next Mailing (#{listOfMailings[index+1]}) "
                 link=f'"{listOfMailings[index+1]}.html"'
