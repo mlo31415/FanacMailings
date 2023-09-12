@@ -39,6 +39,11 @@ table, th, td {
   border-collapse: collapse;
 }
 </style>
+
+	<!-- This is a kludge to decrease the indent of the logo ands top matter. -->
+	<style> .container{
+	; margin-left: -10px
+	}</style>
 </head>
 
 <body>
@@ -48,10 +53,10 @@ table, th, td {
 <!--div class="container pt-2 pl-4"-->
 <!--Overall container-->
 <div class="Container" align="left"> <!-- Top stuff -->
-	<div class="container" align="left">   <!-- Logo -->
+	<div class="container">   <!-- Logo -->
 		<img class="img-responsive" src="../../logo.jpg"> <br>
 	</div><!-- /Logo -->
-<div class="Container&quot;" align="left"> <!-- Blue buttons container -->
+<div class="container;"> <!-- Blue buttons container -->
 	<div class="btn-group">
 		<a href="https://fanac.org/" class="btn btn-primary">Home</a>
 		<div class="btn-group dropdown">
@@ -136,9 +141,9 @@ table, th, td {
 </div>
   <fanac-parent> <!-- Mailing nav buttons-->
   <div class="Container&quot;" align="left">
-	<a href="prev.html" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-arrow-left"></span><fanac-PrevMailing>Previous Mailing</fanac-PrevMailing></a>
+	<a href="prev.html" class="btn btn-info btn-sm"><span class="glyphicon glyphicon-arrow-left"></span><fanac-PrevMailing> Previous Mailing</fanac-PrevMailing></a>
 	<a href="index.html" class="btn btn-info btn-sm "><fanac-AllMailings>All FAPA Mailings</fanac-AllMailings></a>
-	<a href="next.html" class="btn btn-info btn-sm "><fanac-NextMailing>Next Mailings</fanac-NextMailing><span class="glyphicon glyphicon-arrow-right"></span></a>
+	<a href="next.html" class="btn btn-info btn-sm "><fanac-NextMailing>Next Mailing </fanac-NextMailing><span class="glyphicon glyphicon-arrow-right"></span></a>
 </div><!-- \Mailing nav buttons-->
 </fanac-parent>
 </div>
