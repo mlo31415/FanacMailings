@@ -383,7 +383,9 @@ def main():
     templateAllApas=AddBoilerplate(templateAllApas, f"Mailings for All APAs", f"Mailings for All APAs")
 
     listText="&nbsp;<ul>"
-    for apa in apas.keys():
+    apalist=[x for x in apas.keys()]
+    apalist.sort()
+    for apa in apalist:
         listText+=f"<li><a href='{apa}/index.html'>{apa}</a></li>\n"
     listText+="</ul>\n"
     templateAllApas, success=FindAndReplaceBracketedText(templateAllApas, "fanac-list", listText)
