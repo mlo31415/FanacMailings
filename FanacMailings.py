@@ -180,12 +180,12 @@ def main():
             mailingInfo=mailingsInfoTable[apa]
 
         # Also accumulate the info needed to produce the apa page
-        listOfMailings: list[str]=[]
+        listOfMailingKeys: list[str]=[]
         for mailing in apas[apa]:
-            listOfMailings.append(mailing)
+            listOfMailingKeys.append(mailing)
         # Now sort the accumulation of mailings into numerical order.
         # This will be used to create the prev/next links in individual mailing pages and also to create the APA's page
-        listOfMailings=sorted(listOfMailings, key=lambda x: SortMessyNumber(x))
+        listOfMailingKeys=sorted(listOfMailingKeys, key=lambda x: SortMessyNumber(x))
 
         # For each mailing of that APA generate a mailing page.
         for mailing in apas[apa]:
@@ -256,12 +256,12 @@ def main():
                 return
 
             # Insert the label for the button taking you to the previous mailing for this APA
-            index=listOfMailings.index(mailing)
+            index=listOfMailingKeys.index(mailing)
             buttonText=f" No previous mailing"
-            link=f'"{listOfMailings[index]}.html"'
+            link=f'"{listOfMailingKeys[index]}.html"'
             if index > 0:
-                buttonText=f" Prev Mailing (#{listOfMailings[index-1]})"
-                link=f'"{listOfMailings[index-1]}.html"'
+                buttonText=f" Prev Mailing (#{listOfMailingKeys[index-1]})"
+                link=f'"{listOfMailingKeys[index-1]}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", buttonText)
             if success:
                 mailingPage=mailingPage.replace('"prev.html"', link)
@@ -276,12 +276,12 @@ def main():
                 return
 
             # Insert the label for the button taking you to the next mailing for this APA
-            index=listOfMailings.index(mailing)
+            index=listOfMailingKeys.index(mailing)
             buttonText=f"No next mailing "
-            link=f'"{listOfMailings[index]}.html"'
-            if index < len(listOfMailings)-1:
-                buttonText=f" Next Mailing (#{listOfMailings[index+1]}) "
-                link=f'"{listOfMailings[index+1]}.html"'
+            link=f'"{listOfMailingKeys[index]}.html"'
+            if index < len(listOfMailingKeys)-1:
+                buttonText=f" Next Mailing (#{listOfMailingKeys[index+1]}) "
+                link=f'"{listOfMailingKeys[index+1]}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", buttonText)
             if success:
                 mailingPage=mailingPage.replace('"next.html"', link)
@@ -332,7 +332,7 @@ def main():
         newAPAPageFront=newAPAPage[:loc]
         newAPAPageRear=newAPAPage[loc+len("</fanac-rows>"):]
 
-        for mailing in listOfMailings:
+        for mailing in listOfMailingKeys:
             editor=""   #"editor?"
             when="" #"when?"
             if mailing in mailingInfo:
@@ -347,10 +347,10 @@ def main():
         # Add counts of mailings and contributions to bottom
         start, mid, end=ParseFirstStringBracketedText(newAPAPage, "fanac-totals")
         numConts=0
-        for mailing in listOfMailings:
+        for mailing in listOfMailingKeys:
             numConts+=len(apas[apa][mailing])
 
-        mid=f"{len(listOfMailings)} mailings containing {numConts} individual contributions"
+        mid=f"{len(listOfMailingKeys)} mailings containing {numConts} individual contributions"
         newAPAPage=start+mid+end
 
         # Add the updated date/time
