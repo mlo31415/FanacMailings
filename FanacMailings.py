@@ -89,15 +89,14 @@ def main():
             self.Mailings: str=initialize(headers, row, "Mailings")
     # --- end class FanzineInMailing ---
 
-    allFanzines: list[FanzineInMailing]=[]
-    for row in mailingsdata:
-        allFanzines.append(FanzineInMailing(mailingsheaders, row))
 
 
     # ---------------------------
-    # Turn the data from FanacAnalyzer into a dictionary of the form dict(apa, dict(mailing, data))
+    # Turn the data from FanacAnalyzer into a dictionary of the form dict(apa, dict(mailing, data)) by loading
+    # the individual fanzine issue information read from the file from FanacAnalyzer
     apas: dict[str, dict[str, list[FanzineInMailing]]]=defaultdict(lambda: defaultdict(list))
-    for fanzine in allFanzines:
+    for row in mailingsdata:
+        fanzine=FanzineInMailing(mailingsheaders, row)
         # The mailings column is of the form   ['FAPA 20 & VAPA 23']
         mailings=fanzine.Mailings.removeprefix("['").removesuffix("']")
         mailings=[x.strip() for x in mailings.split("&")]
