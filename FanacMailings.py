@@ -393,6 +393,8 @@ def main():
     with open(os.path.join(reportsdir, "index.html"), "w") as file:
         file.writelines(templateAllApas)
 
+    # End Main
+
 
 ######################################################################
 # Entry for a specific mailing in a dictionary of mailings for an APA.
