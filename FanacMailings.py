@@ -109,7 +109,7 @@ def main():
                     mailingnumber=m.groups()[0]
                     # if mailingnumber not in apas[apa].keys():
                     #     apas[apa][mailingnumber]=[]
-                    apas[apa][m.groups()[0]].append(fanzine)
+                    apas[apa][mailingnumber].append(fanzine)
 
     # ------------------
     # We've slurped in all the data.  Now create the index files for each issue
