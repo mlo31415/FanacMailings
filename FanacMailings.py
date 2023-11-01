@@ -175,10 +175,12 @@ def main():
     allMailings.sort()
     for apa in allMailings:
 
+
         # Make sure that a directory exists for this APA's html files
         if not os.path.exists(os.path.join(reportsdir, apa.Name)):
             os.mkdir(os.path.join(reportsdir, apa.Name))
 
+        apa.sort()
         for mailing in apa:
             mailing.sort()
 
