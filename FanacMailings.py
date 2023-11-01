@@ -379,7 +379,7 @@ def main():
     apalist=[x.Name for x in allMailings]
     apalist.sort()
     for apaName in apalist:
-        listText+=f"<li><a href='{apaName}/index.html'>{apaName}</a></li>\n"
+        listText+=f'<li><a href="{apaName}/index.html">{apaName}</a></li>\n'        # The swapping of '"' and '"' is so that "N'APA" can be in a URL
     listText+="</ul>\n"
     templateAllApas, success=FindAndReplaceBracketedText(templateAllApas, "fanac-list", listText)
 
