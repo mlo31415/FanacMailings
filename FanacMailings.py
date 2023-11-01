@@ -288,7 +288,7 @@ def main():
 
             # Add counts of mailings and contributions to bottom
             start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-totals")
-            newAPAPage=f"{start} {mailing.Count}  {end}"
+            mailingPage=f"{start} {mailing.Count}  {end}"
 
             # Write the mailing file
             with open(os.path.join(reportsdir, apa.Name, mailing.Name)+".html", "w") as file:
