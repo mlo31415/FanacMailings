@@ -11,7 +11,7 @@ import openpyxl
 
 from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, Pluralize, NormalizePersonsName, Int0
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
 from HelpersPackage import FindIndexOfStringInList
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
@@ -556,7 +556,7 @@ class OneMailing:
         return self.ListFIM[self._current-1]
 
     def sort(self):
-        self.ListFIM.sort(key=lambda x: x.IssueName)
+        self.ListFIM.sort(key=lambda x: SortTitle(x.IssueName))
 
     @property
     def Count(self):
