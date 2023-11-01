@@ -11,7 +11,7 @@ import openpyxl
 
 from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
-from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, NormalizePersonsName, Int0, DateMonthYear
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, Pluralize, NormalizePersonsName, Int0
 from HelpersPackage import FindIndexOfStringInList
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
@@ -326,6 +326,7 @@ def main():
         newAPAPageFront=newAPAPage[:loc]
         newAPAPageRear=newAPAPage[loc+len("</fanac-rows>"):]
 
+        apa.sort()
         for mailing in apa:
             when=mailing.MIFJ.Date
             editor=mailing.MIFJ.Editor
@@ -617,7 +618,7 @@ class EntireAPA:
         return self.List[self._current-1]
 
     def sort(self):
-        self.List.sort(key=lambda x: x.Name)
+        self.List.sort(key=lambda x: SortMessyNumber(x.Name))
 
 
 @dataclass
