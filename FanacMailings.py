@@ -654,41 +654,6 @@ class AllAPAs:
 
 
 ######################################################################
-# Also accumulate the info needed to produce the apa page
-@dataclass
-class Mailing:
-    Count: Counts=field(default_factory=lambda: Counts())
-    Name: str=""
-
-    def __hash__(self):
-        return self.Name.__hash__()+self.Count.__hash__()
-
-@dataclass
-class ListOfMailings:
-    List: list[Mailing]=field(default_factory=list)
-    def __index__(self, index) -> int:
-        for (i, x) in enumerate(self.List):
-            if x.Name == index:
-                return i
-        raise IndexError
-    def append(self, val: Mailing):
-        self.List.append(val)
-    def sort(self):
-        sorted(self.List, key=lambda x: SortMessyNumber(x.Name))
-    def findIndex(self, val: str) -> int:
-        for i, x in enumerate(self.List):
-            if x.Name == val:
-                return i
-        raise IndexError
-    def __getitem__(self, index: int) -> Mailing:
-        return self.List[index]
-    def __len__(self):
-        return len(self.List)
-    def __hash__(self):
-        return self.List.__hash__
-
-
-######################################################################
 # A class to hold the information for one fanzine in one mailing of an APA
 
 class FanzineInMailing:
