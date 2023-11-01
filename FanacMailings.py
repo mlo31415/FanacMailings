@@ -185,7 +185,7 @@ def main():
             ##################################################################
             ##################################################################
             # Do a mailing page
-             # First, the top matter
+            # First, the top matter
             # <div><fanac-top>
             # <table class=topmatter>
             # <tr><td class=topmatter>mailing</td></tr>
@@ -248,7 +248,7 @@ def main():
                 buttonText=f"No prev mailing "
                 link=""
             else:
-                buttonText=f" Prev Mailing (#{apa[index]}) "
+                buttonText=f" Prev Mailing (#{apa[index].Name}) "
                 link=f'"{apa[index].Name}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", buttonText)
             if success:
@@ -269,7 +269,7 @@ def main():
                 buttonText=f"No next mailing "
                 link=""
             else:
-                buttonText=f" Next Mailing (#{apa[index]}) "
+                buttonText=f" Next Mailing (#{apa[index].Name}) "
                 link=f'"{apa[index].Name}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", buttonText)
             if success:
