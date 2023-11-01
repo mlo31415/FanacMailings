@@ -464,7 +464,7 @@ class Counts:
         s=""
         if self.Mailings > 0:
             s+=f"{Pluralize(self.Mailings, 'mailing')}, "
-        return s+f"{Pluralize(self.Issues, 'issue')}, {self.Pages} pages"
+        return s+f"{Pluralize(self.Issues, 'issue')}, {Pluralize(self.Pages, 'page')}"
 
     # Add a Count or a single fanzine
     def __add__(self, val:Counts | int) -> Counts:
