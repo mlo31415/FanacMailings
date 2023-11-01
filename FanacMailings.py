@@ -284,6 +284,10 @@ def main():
                 LogError(f"Could not change mailto Subject on mailing page {templateFilename} at 'fanac-ThisPageName'")
                 #return
 
+            # Add counts of mailings and contributions to bottom
+            start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-totals")
+            newAPAPage=f"{start} {mailing.Count}  {end}"
+
             # Write the mailing file
             with open(os.path.join(reportsdir, apa.Name, mailing.Name)+".html", "w") as file:
                 mailingPage=mailingPage.split("/n")
@@ -337,12 +341,7 @@ def main():
 
         # Add counts of mailings and contributions to bottom
         start, mid, end=ParseFirstStringBracketedText(newAPAPage, "fanac-totals")
-        numConts=0
-        for mailing in apa:
-            numConts+=len(allMailings[apa.Name][mailing.Name])
-
-        mid=f"{len(apa)} mailings containing {numConts} individual contributions"
-        newAPAPage=start+mid+end
+        newAPAPage=f"{start} {apa.Count}  {end}"
 
         # Add the updated date/time
         newAPAPage, success=FindAndReplaceBracketedText(newAPAPage, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}>")
@@ -461,8 +460,8 @@ class Counts:
     def __str__(self):
         s=""
         if self.Mailings > 0:
-            s+=f"{self.Mailings} mailings, "
-        return s+f"{self.Issues} issues, {self.Pages} pages"
+            s+=f"{Pluralize(self.Mailings, 'mailing')}, "
+        return s+f"{Pluralize(self.Issues, 'issue')}, {self.Pages} pages"
 
     # Add a Count or a single fanzine
     def __add__(self, val:Counts | int) -> Counts:
