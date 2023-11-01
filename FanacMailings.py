@@ -182,7 +182,7 @@ def main():
         for mailing in apa:
             mailing.sort()
 
-
+            ##################################################################
             ##################################################################
             # Do a mailing page
              # First, the top matter
@@ -290,7 +290,7 @@ def main():
                 file.writelines(mailingPage)
 
 
-
+        ##################################################################
         ##################################################################
         # Now that the mailing pages are all done, do an apa page
 
@@ -357,10 +357,8 @@ def main():
         with open(os.path.join(reportsdir, apa.Name, "index.html"), "w") as file:
             file.writelines(newAPAPage)
 
-        #countAllAPAs+=countThisAPA
-
-
-    #########################################################################
+    ##################################################################
+    ##################################################################
     # Generate the All Apas root page
     templateFilename=Settings().Get("Template-allAPAs")
     if len(templateFilename) == 0:
