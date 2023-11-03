@@ -385,6 +385,13 @@ def main():
     listText+="</ul>\n"
     templateAllApas, success=FindAndReplaceBracketedText(templateAllApas, "fanac-list", listText)
 
+    # Add counts of mailings and contributions to bottom
+    for apa in allAPAs:
+        allAPAs.Count+=apa.Count
+
+    start, mid, end=ParseFirstStringBracketedText(templateAllApas, "fanac-totals")
+    templateAllApas=f"{start} {allAPAs.Count}  {end}"
+
     with open(os.path.join(reportsdir, "index.html"), "w") as file:
         file.writelines(templateAllApas)
 
