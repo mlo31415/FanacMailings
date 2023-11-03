@@ -72,7 +72,7 @@ def main():
     # Turn the data from FanacAnalyzer into a dictionary of the form dict(apa, dict(mailing, data)) by loading
     # the individual fanzine issue information read from the file from FanacAnalyzer
     # Allmailings is keyed by the apa's name.  The Value is an EntireAPA object
-    allMailings: AllAPAs=AllAPAs()
+    allAPAs: AllAPAs=AllAPAs()
     for row in mailingsdata:
         fanzine=FanzineInMailing(mailingsHeaders, row)
         # The mailings column is of the form   ['FAPA 20 & VAPA 23']
@@ -83,12 +83,12 @@ def main():
                 m=re.match(f"{apaName}\s(.*)$", mailing)
                 if m is not None:
                     mailingNumber=m.groups()[0]
-                    allMailings[apaName][mailingNumber].append(fanzine)
+                    allAPAs[apaName][mailingNumber].append(fanzine)
 
     # ------------------
     # We've slurped in all the data.
-    # Now merge Joe's mailing info into allMailings
-    for apa in allMailings:
+    # Now merge Joe's mailing info into allAPAs
+    for apa in allAPAs:
         for mailing in apa:
             if apa.Name in mailingsInfoTablefromJoe:
                 if mailing.Name in mailingsInfoTablefromJoe[apa.Name]:
@@ -96,10 +96,10 @@ def main():
 
 
     # The next step is to generate the counts
-    # Walk through allMailings
+    # Walk through allAPAs
     # For each APA that we found there extract the data, merge it was Joe's data, and create a unified dataset to generate the web pages
     countAllAPAs=Counts()       # This is the only 'bare' Counts -- all the others are in larger structures
-    for apa in allMailings:
+    for apa in allAPAs:
 
         # For each mailing of that APA count up the issues and pages
         for mailing in apa:
@@ -172,8 +172,8 @@ def main():
     # For each APA that we found there:
     #   Create an apa HTML page listing (and linking to) all the mailing pages
     #   Create all the individual mailing pages
-    allMailings.sort()
-    for apa in allMailings:
+    allAPAs.sort()
+    for apa in allAPAs:
 
 
         # Make sure that a directory exists for this APA's html files
@@ -362,6 +362,7 @@ def main():
     ##################################################################
     ##################################################################
     # Generate the All Apas root page
+
     templateFilename=Settings().Get("Template-allAPAs")
     if len(templateFilename) == 0:
         LogError("Settings file 'FanacMailings settings.txt' does not contain a value for Template-allAPAs (the template for the page listing all APAs)")
@@ -376,7 +377,8 @@ def main():
     templateAllApas=AddBoilerplate(templateAllApas, f"Mailings for All APAs", f"Mailings for All APAs")
 
     listText="&nbsp;<ul>"
-    apalist=[x.Name for x in allMailings]
+
+    apalist=[x.Name for x in allAPAs]
     apalist.sort()
     for apaName in apalist:
         listText+=f'<li><a href="{apaName}/index.html">{apaName}</a></li>\n'        # The swapping of '"' and '"' is so that "N'APA" can be in a URL
