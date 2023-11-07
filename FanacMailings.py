@@ -205,7 +205,7 @@ def main():
             mid=mid.replace("mailing", f"{apa.Name} Mailing #{number}")
             mailingPage=start+mid+end
 
-            mailingPage=AddBoilerplate(mailingPage, f"{apa.Name}-{mailing}", f"{mailing}, {editor}, {when}, {apa.Name}-mailing")
+            mailingPage=AddBoilerplate(mailingPage, f"{apa.Name}-{mailing.Name}", f"{mailing.Name}, {editor}, {when}, {apa.Name}-mailing")
 
             # Now the bottom matter (the list of fanzines)
             newtable="<tr>\n"
@@ -281,7 +281,7 @@ def main():
                 return
 
             # Modify the Mailto: so that the page name appears as the subject
-            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-ThisPageName", f"{apa.Name}:{mailing}")
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-ThisPageName", f"{apa.Name}:{mailing.Name}")
             if not success:
                 LogError(f"Could not change mailto Subject on mailing page {templateFilename} at 'fanac-ThisPageName'")
                 #return
