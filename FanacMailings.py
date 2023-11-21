@@ -292,7 +292,7 @@ def main():
 
             # Write the mailing file
             with open(os.path.join(reportsdir, apa.Name, mailing.Name)+".html", "w") as file:
-                mailingPage=mailingPage.split("/n")
+                mailingPage=mailingPage.split("\n")
                 file.writelines(mailingPage)
 
 
