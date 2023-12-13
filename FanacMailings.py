@@ -12,7 +12,7 @@ import openpyxl
 from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
-from HelpersPackage import FindIndexOfStringInList
+from HelpersPackage import FindIndexOfStringInList, FormatCount
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -376,21 +376,33 @@ def main():
 
     templateAllApas=AddBoilerplate(templateAllApas, f"Mailings for All APAs", f"Mailings for All APAs")
 
-    listText="&nbsp;<ul>"
+    listText="\n<i>Click on the APA's name to see APA's contents</i>\n"
+    listText+="<style>th, td{border-style: hidden;}</style>\n\n"
 
-    apalist=[x.Name for x in allAPAs]
-    apalist.sort()
-    for apaName in apalist:
-        listText+=f'<li><a href="{apaName}/index.html">{apaName}</a></li>\n'        # The swapping of '"' and '"' is so that "N'APA" can be in a URL
-    listText+="</ul>\n"
-    templateAllApas, success=FindAndReplaceBracketedText(templateAllApas, "fanac-list", listText)
+    listText+="<table>\n<tr>\n<th>&nbsp;&nbsp;&nbsp;APA</th>\n<th>&nbsp;Mailings&nbsp;</th>\n<th>&nbsp;Apazines&nbsp;</th>\n<th>&nbsp;Pages&nbsp;</th</tr>\n"
 
+    allAPAs.sort()
+    for apa in allAPAs:
+        listText+=(f"\n<tr><td>&nbsp;&nbsp;&nbsp;<a href={apa.Name}.html>{apa.Name}</a></td>\n"
+                          f"<td style='text-align: right'>{apa.Count.Mailings}&nbsp;&nbsp;&nbsp;</td>\n"
+                          f"<td style='text-align: right'>{apa.Count.Issues}&nbsp;&nbsp;&nbsp;</td>\n"
+                          f"<td style='text-align: right'>{FormatCount(apa.Count.Pages)}&nbsp;&nbsp;&nbsp;</td>\n"
+                          f"</tr>\n")
     # Add counts of mailings and contributions to bottom
     for apa in allAPAs:
         allAPAs.Count+=apa.Count
+    listText+=(f"\n<tr><td>&nbsp;&nbsp;&nbsp;&nbsp</td>\n"
+               f"<td style='text-align: right'>______&nbsp;&nbsp;</td>\n"
+               f"<td style='text-align: right'>______&nbsp;&nbsp;</td>\n"
+               f"<td style='text-align: right'>______&nbsp;&nbsp;</td>\n")
+    listText+=(f"\n<tr><td>&nbsp;&nbsp;&nbsp;&nbsp</td>\n"
+               f"<td style='text-align: right'>{allAPAs.Count.Mailings}&nbsp;&nbsp;&nbsp;</td>\n"
+               f"<td style='text-align: right'>{allAPAs.Count.Issues}&nbsp;&nbsp;&nbsp;</td>\n"
+               f"<td style='text-align: right'>{FormatCount(allAPAs.Count.Pages)}&nbsp;&nbsp;&nbsp;</td>\n"
+               f"</tr>\n")
 
-    start, mid, end=ParseFirstStringBracketedText(templateAllApas, "fanac-totals")
-    templateAllApas=f"{start} {allAPAs.Count}  {end}"
+    listText+="</table>\n"
+    templateAllApas, success=FindAndReplaceBracketedText(templateAllApas, "fanac-list", listText)
 
     with open(os.path.join(reportsdir, "index.html"), "w") as file:
         file.writelines(templateAllApas)
