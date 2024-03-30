@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
 from dataclasses import dataclass, field
 import csv
 import os
@@ -411,7 +410,7 @@ def main():
 
 
 # Read the APA Mailings.xlsx file supplied by Joe to get OE, date, etc., information for each mailing.
-def ReadXLSX(apaName: str) -> Optional[dict[str, MailingInfoFromJoe]]:
+def ReadXLSX(apaName: str) -> dict[str, MailingInfoFromJoe] | None:
     xlsxname="APA Mailings.xlsx"
     # Skip missing xlsx files
     if not os.path.exists(xlsxname):
