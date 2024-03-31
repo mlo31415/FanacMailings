@@ -139,7 +139,7 @@ def main():
         page=start+mid+end
 
         # Add the updated date/time
-        page, success=FindAndReplaceBracketedText(page, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}")
+        page, _=FindAndReplaceBracketedText(page, "fanac-updated", f"Updated {datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')}")
         return page
 
 
