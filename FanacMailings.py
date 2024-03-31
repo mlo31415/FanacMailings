@@ -383,7 +383,7 @@ def main():
 
     allAPAs.sort()
     for apa in allAPAs:
-        listText+=(f"\n<tr><td>&nbsp;&nbsp;&nbsp;<a href={apa.Name}.html>{apa.Name}</a></td>\n"
+        listText+=(f"\n<tr><td>&nbsp;&nbsp;&nbsp;<a href={apa.Name}/index.html>{apa.Name}</a></td>\n"
                           f"<td style='text-align: right'>{apa.Count.Mailings}&nbsp;&nbsp;&nbsp;</td>\n"
                           f"<td style='text-align: right'>{apa.Count.Issues}&nbsp;&nbsp;&nbsp;</td>\n"
                           f"<td style='text-align: right'>{FormatCount(apa.Count.Pages)}&nbsp;&nbsp;&nbsp;</td>\n"
