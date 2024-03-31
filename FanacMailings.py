@@ -114,9 +114,8 @@ def main():
         countAllAPAs+=Counts(Mailings=apa.Count.Mailings, Issues=apa.Count.Issues, Pages=apa.Count.Pages)
 
 
-
-##################################################################################################################
-# We have done all the analysis: generate the HTML pages
+    ##################################################################################################################
+    # We have done all the analysis: generate the HTML pages
 
     # We will create a file in the ReportsDir for each APA, and put the individual issue index pages there
     reportsdir=Settings().Get("ReportsDir")
@@ -407,8 +406,8 @@ def main():
     with open(os.path.join(reportsdir, "index.html"), "w") as file:
         file.writelines(templateAllApas)
 
-    # End Main
-
+# End Main
+###################################################################
 
 # Read the APA Mailings.xlsx file supplied by Joe to get OE, date, etc., information for each mailing.
 def ReadXLSX(apaName: str) -> dict[str, MailingInfoFromJoe] | None:
