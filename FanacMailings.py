@@ -83,6 +83,7 @@ def main():
                 if m is not None:
                     mailingNumber=m.groups()[0]
                     allAPAs[apaName][mailingNumber].append(fanzine)
+                    break
 
     # ------------------
     # We've slurped in all the data.
