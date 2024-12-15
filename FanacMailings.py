@@ -79,7 +79,7 @@ def main():
         mailings=[x.strip() for x in mailings.split("&")]
         for mailing in mailings:
             for apaName in knownApas:
-                m=re.match(f"{apaName}\s(.*)$", mailing)
+                m=re.match(rf"{apaName}\s(.*)$", mailing)
                 if m is not None:
                     mailingNumber=m.groups()[0]
                     allAPAs[apaName][mailingNumber].append(fanzine)
