@@ -11,7 +11,7 @@ import openpyxl
 from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
-from HelpersPackage import FindIndexOfStringInList, FormatCount
+from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -61,7 +61,8 @@ def main():
 
     if len(mailingsdata) < 100:
         LogError(f"There are {len(mailingsdata)} items in {sourceCSVfile} -- there should be many hundreds")
-        return
+        if not DebuggerIsRunning():
+            return
 
     # Segregate the headers info
     mailingsHeaders=mailingsdata[0]
