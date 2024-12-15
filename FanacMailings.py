@@ -11,7 +11,7 @@ import openpyxl
 from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
-from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml
+from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml, MakeFancyLink
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -229,7 +229,7 @@ def main():
                 else:
                     newtable+=f"<td>&nbsp;</td>\n"
                 if apazine.Editor != "":
-                    newtable+=f"<td>{UnicodeToHtml(apazine.Editor)}&nbsp;&nbsp;</td>"
+                    newtable+=f"<td>{MakeFancyLink(apazine.Editor)}&nbsp;&nbsp;</td>"
                 else:
                     newtable+=f"<td>&nbsp;</td>\n"
                 if apazine.PageCount != "":
