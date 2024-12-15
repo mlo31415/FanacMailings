@@ -223,11 +223,13 @@ def main():
                 countThisIssue.Issues=1
                 newtable+="<tr>\n"
                 if apazine.DirURL != "" and apazine.PageName != "":
-                    newtable+=f"<td><a href={apazine.DirURL}/{apazine.PageName}>{apazine.IssueName}</a></td>\n"
+                    href=f"{apazine.DirURL}/{apazine.PageName}>"
+                    href=href.replace(" ", "%20")
+                    newtable+=f"<td><a href={href}{UnicodeToHtml(apazine.IssueName)}</a></td>\n"
                 else:
                     newtable+=f"<td>&nbsp;</td>\n"
                 if apazine.Editor != "":
-                    newtable+=f"<td>{apazine.Editor}&nbsp;&nbsp;</td>"
+                    newtable+=f"<td>{UnicodeToHtml(apazine.Editor)}&nbsp;&nbsp;</td>"
                 else:
                     newtable+=f"<td>&nbsp;</td>\n"
                 if apazine.PageCount != "":
@@ -409,6 +411,7 @@ def main():
 
 # End Main
 ###################################################################
+
 
 # Read the APA Mailings.xlsx file supplied by Joe to get OE, date, etc., information for each mailing.
 def ReadXLSX(apaName: str) -> dict[str, MailingInfoFromJoe] | None:
