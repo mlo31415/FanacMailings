@@ -542,7 +542,7 @@ class MailingInfoFromJoe:
 
     @property
     def Month(self) -> int:
-        return self.Date.Month
+        return self.Date.MonthNum
 
     @Month.setter
     def Month(self, m: int) -> None:
