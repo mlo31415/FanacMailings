@@ -293,7 +293,10 @@ def main():
             mailingPage=f"{start} {mailing.Count}  {end}"
 
             # Write the mailing file
-            with open(os.path.join(reportsdir, apa.Name, mailing.Name)+".html", "w") as file:
+            fn=os.path.join(reportsdir, apa.Name, mailing.Name)+".html"
+            if not os.path.exists(fn):
+                i=0     # Break point
+            with open(fn, "w") as file:
                 mailingPage=mailingPage.split("\n")
                 file.writelines(mailingPage)
 
