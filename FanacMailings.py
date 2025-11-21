@@ -11,7 +11,7 @@ import openpyxl
 from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
-from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml, MakeFancyLink
+from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml, MakeFancyLink, SplitOnAnyChar
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -77,7 +77,7 @@ def main():
         fanzine=FanzineInMailing(mailingsHeaders, row)
         # The mailings column is of the form   ['FAPA 20 & VAPA 23']
         mailings=fanzine.Mailings.removeprefix("['").removesuffix("']")
-        mailings=[x.strip() for x in mailings.split("&")]
+        mailings=[x.strip() for x in SplitOnAnyChar("&,",mailings)]
         for mailing in mailings:
             for apaName in knownApas:
                 m=re.match(rf"{apaName}\s(.*)$", mailing)
@@ -174,7 +174,6 @@ def main():
     #   Create all the individual mailing pages
     allAPAs.sort()
     for apa in allAPAs:
-
 
         # Make sure that a directory exists for this APA's html files
         if not os.path.exists(os.path.join(reportsdir, apa.Name)):
@@ -564,6 +563,11 @@ class OneMailing:
 
     def append(self, val: FanzineInMailing):
         self.ListFIM.append(val)
+
+    def __str__(self) -> str:
+        return self.Name
+    def __repr__(self) -> str:
+        return self.__str__()
     def __len__(self):
         return len(self.ListFIM)
     def __hash__(self):
