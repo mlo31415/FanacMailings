@@ -11,7 +11,7 @@ import openpyxl
 from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
-from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml, MakeFancyLink, SplitOnAnyChar
+from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml, MakeFancyLink, SplitOnAnySingleChar
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -77,7 +77,7 @@ def main():
         fanzine=FanzineInMailing(mailingsHeaders, row)
         # The mailings column is of the form   ['FAPA 20 & VAPA 23']
         mailings=fanzine.Mailings.removeprefix("['").removesuffix("']")
-        mailings=[x.strip() for x in SplitOnAnyChar("&,",mailings)]
+        mailings=[x.strip() for x in SplitOnAnySingleChar("&,",mailings)]
         for mailing in mailings:
             for apaName in knownApas:
                 m=re.match(rf"{apaName}\s(.*)$", mailing)
