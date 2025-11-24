@@ -92,8 +92,8 @@ def main():
     for apa in allAPAs:
         for mailing in apa:
             if apa.Name in mailingsInfoTablefromJoe:
-                if mailing.Name in mailingsInfoTablefromJoe[apa.Name]:
-                    mailing.MIFJ=mailingsInfoTablefromJoe[apa.Name][mailing.Name]
+                if mailing.Number in mailingsInfoTablefromJoe[apa.Name]:
+                    mailing.MIFJ=mailingsInfoTablefromJoe[apa.Name][mailing.Number]
 
 
     # The next step is to generate the counts
@@ -198,13 +198,13 @@ def main():
             start, mid, end=ParseFirstStringBracketedText(mailingPage, "fanac-top")
             editor=f"OE: {NormalizePersonsName(mailing.MIFJ.Editor)}"
             when=mailing.MIFJ.Date.FormatDate("%B %Y")
-            number=mailing.Name
+            number=mailing.Number
             mid=mid.replace("editor", editor)
             mid=mid.replace("date", when)
             mid=mid.replace("mailing", f"{apa.Name} Mailing #{number}")
             mailingPage=start+mid+end
 
-            mailingPage=AddBoilerplate(mailingPage, f"{apa.Name}-{mailing.Name}", f"{mailing.Name}, {editor}, {when}, {apa.Name}-mailing")
+            mailingPage=AddBoilerplate(mailingPage, f"{apa.Name}-{mailing.Number}", f"{mailing.Number}, {editor}, {when}, {apa.Name}-mailing")
 
             # Now the bottom matter (the list of fanzines)
             newtable="<tr>\n"
@@ -246,13 +246,13 @@ def main():
                 return
 
             # Insert the label for the button taking you to the previous mailing for this APA
-            index=apa.prevIndex(mailing.Name)
+            index=apa.prevIndex(mailing.Number)
             if index is None:
                 buttonText=f"No prev mailing "
                 link=""
             else:
-                buttonText=f" Prev Mailing (#{apa[index].Name}) "
-                link=f'"{apa[index].Name}.html"'
+                buttonText=f" Prev Mailing (#{apa[index].Number}) "
+                link=f'"{apa[index].Number}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-PrevMailing", buttonText)
             if success:
                 mailingPage=mailingPage.replace('"prev.html"', link)
@@ -267,13 +267,13 @@ def main():
                 return
 
             # Insert the label for the button taking you to the next mailing for this APA
-            index=apa.nextIndex(mailing.Name)
+            index=apa.nextIndex(mailing.Number)
             if index is None:
                 buttonText=f"No next mailing "
                 link=""
             else:
-                buttonText=f" Next Mailing (#{apa[index].Name}) "
-                link=f'"{apa[index].Name}.html"'
+                buttonText=f" Next Mailing (#{apa[index].Number}) "
+                link=f'"{apa[index].Number}.html"'
             mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-NextMailing", buttonText)
             if success:
                 mailingPage=mailingPage.replace('"next.html"', link)
@@ -282,7 +282,7 @@ def main():
                 return
 
             # Modify the Mailto: so that the page name appears as the subject
-            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-ThisPageName", f"{apa.Name}:{mailing.Name}")
+            mailingPage, success=FindAndReplaceBracketedText(mailingPage, "fanac-ThisPageName", f"{apa.Name}:{mailing.Number}")
             if not success:
                 LogError(f"Could not change mailto Subject on mailing page {templateFilename} at 'fanac-ThisPageName'")
                 #return
@@ -292,7 +292,7 @@ def main():
             mailingPage=f"{start} {mailing.Count}  {end}"
 
             # Write the mailing file
-            fn=os.path.join(reportsdir, apa.Name, mailing.Name)+".html"
+            fn=os.path.join(reportsdir, apa.Name, mailing.Number)+".html"
             if not os.path.exists(fn):
                 i=0     # Break point
             with open(fn, "w") as file:
@@ -338,7 +338,7 @@ def main():
             editor=mailing.MIFJ.Editor
             issues=mailing.Count.Issues
             pages=mailing.Count.Pages
-            newAPAPageFront+=(f"\n<tr><td><a href={mailing.Name}.html>{mailing.Name}</a></td>"
+            newAPAPageFront+=(f"\n<tr><td><a href={mailing.Number}.html>{mailing.Number}</a></td>"
                               f"<td>{when}</td><td>{editor}</td>"
                               f"<td style='text-align: right'>{issues}&nbsp;&nbsp;&nbsp;&nbsp;</td>"
                               f"<td style='text-align: right'>{pages}&nbsp;&nbsp;&nbsp;&nbsp;</td>"
@@ -559,19 +559,19 @@ class OneMailing:
         self._Count: Counts=Counts()      # The totals for all the apazines in the mailing
         self.MIFJ: MailingInfoFromJoe=MailingInfoFromJoe()       # Joe's info on the mailing
         self.ListFIM: list=[]        # A list of all the apazines in the mailing
-        self.Name: str=""        # The name of the mailing (usually a number.)
+        self.Number: str=""        # The name of the mailing (usually a number.)
 
     def append(self, val: FanzineInMailing):
         self.ListFIM.append(val)
 
     def __str__(self) -> str:
-        return self.Name
+        return self.Number
     def __repr__(self) -> str:
         return self.__str__()
     def __len__(self):
         return len(self.ListFIM)
     def __hash__(self):
-        h=self.Name.__hash__()+self.Count.__hash__()+self.MIFJ.__hash__()
+        h=self.Number.__hash__()+self.Count.__hash__()+self.MIFJ.__hash__()
         for lf in self.ListFIM:
             h+=lf.__hash__()
         return h
@@ -617,27 +617,27 @@ class EntireAPA:
         self.List.append(val)
     def __getitem__(self, index: str) -> OneMailing:
         for (i, x) in enumerate(self.List):
-            if x.Name == index:
+            if x.Number == index:
                 return x
         new=OneMailing()
-        new.Name=index
+        new.Number=index
         self.List.append(new)
         return new
 
     def nextIndex(self, index: str) -> str | None:
         for (i, x) in enumerate(self.List):
-            if x.Name == index:
+            if x.Number == index:
                 if i+1 >= len(self.List):
                     return None
-                return self.List[i+1].Name
+                return self.List[i+1].Number
         return None
 
     def prevIndex(self, index: str) -> str|None:
         for (i, x) in enumerate(self.List):
-            if x.Name == index:
+            if x.Number == index:
                 if i-1 < 0:
                     return None
-                return self.List[i-1].Name
+                return self.List[i-1].Number
         return None
 
     def __iter__(self):
@@ -651,7 +651,7 @@ class EntireAPA:
         return self.List[self._current-1]
 
     def sort(self):
-        self.List.sort(key=lambda x: SortMessyNumber(x.Name))
+        self.List.sort(key=lambda x: SortMessyNumber(x.Number))
 
 
 @dataclass
