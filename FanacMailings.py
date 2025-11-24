@@ -294,7 +294,7 @@ def main():
             # Write the mailing file
             fn=os.path.join(reportsdir, apa.Name, mailing.Number)+".html"
             if not os.path.exists(fn):
-                i=0     # Break point
+                pass     # Break point for testing
             with open(fn, "w") as file:
                 mailingPage=mailingPage.split("\n")
                 file.writelines(mailingPage)
