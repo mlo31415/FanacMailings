@@ -219,10 +219,18 @@ def main():
                 countThisIssue=Counts()
                 countThisIssue.Issues=1
                 newtable+="<tr>\n"
+                Log(apazine.PageName)
                 if apazine.DirURL != "" and apazine.PageName != "":
-                    href=f"{apazine.DirURL}/{apazine.PageName}>"
-                    href=href.replace(" ", "%20")
-                    newtable+=f"<td><a href={href}{UnicodeToHtml(apazine.IssueName)}</a></td>\n"
+                    if apazine.PageName.startswith("//fanac.org"):
+                        # It's an absolute reference
+                        href=apazine.PageName
+                        href=href.replace(" ", "%20")
+                        newtable+=f"<td><a href=https:{href}>{UnicodeToHtml(apazine.IssueName)}</a></td>\n"
+                    else:
+                        # It's a relative reference
+                        href=f"{apazine.DirURL}/{apazine.PageName}>"
+                        href=href.replace(" ", "%20")
+                        newtable+=f"<td><a href={href}{UnicodeToHtml(apazine.IssueName)}</a></td>\n"
                 else:
                     newtable+=f"<td>&nbsp;</td>\n"
                 if apazine.Editor != "":
