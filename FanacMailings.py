@@ -69,11 +69,11 @@ def main():
     # ---------------------------
     # Turn the data from FanacAnalyzer into a dictionary of the form dict(apa, dict(mailing, data)) by loading
     # the individual fanzine issue information read from the file from FanacAnalyzer
-    # Allmailings is keyed by the apa's name.  The Value is an EntireAPA object
+    # Allmailings is keyed by the apa's name.  The value is an EntireAPA object
     allAPAs: AllAPAs=AllAPAs()
     for row in mailingsdata:
         fanzine=FanzineInMailing(mailingsHeaders, row)
-        # The mailings column is of the form   ['FAPA 20 & VAPA 23']
+        # The mailings column maay be of the form   ['FAPA 20 & VAPA 23']
         mailings=fanzine.Mailings.removeprefix("['").removesuffix("']")
         mailings=[x.strip() for x in SplitOnAnySingleChar("&,",mailings)]
         for mailing in mailings:
