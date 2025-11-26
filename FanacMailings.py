@@ -61,8 +61,6 @@ def main():
 
     if len(mailingsdata) < 100:
         LogError(f"There are {len(mailingsdata)} items in {sourceCSVfile} -- there should be many hundreds")
-        if not DebuggerIsRunning():
-            return
 
     # Segregate the headers info
     mailingsHeaders=mailingsdata[0]
