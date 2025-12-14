@@ -13,6 +13,7 @@ from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
 from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml, MakeFancyLink, SplitOnAnySingleChar
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0, FormatLink
+from HelpersPackage import FindIndexOfStringInList, FormatCount, UnicodeToHtml, MakeFancyLink, SplitOnAnySingleChar
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
