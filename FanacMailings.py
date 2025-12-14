@@ -12,6 +12,7 @@ from FanzineIssueSpecPackage import FanzineDate
 from Settings import Settings
 from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0
 from HelpersPackage import FindIndexOfStringInList, FormatCount, DebuggerIsRunning, UnicodeToHtml, MakeFancyLink, SplitOnAnySingleChar
+from HelpersPackage import FindAndReplaceBracketedText, ParseFirstStringBracketedText, SortMessyNumber, SortTitle, Pluralize, NormalizePersonsName, Int0, FormatLink
 from Log import LogError, Log, LogDisplayErrorsIfAny, LogOpen
 
 
@@ -231,6 +232,7 @@ def main():
                         href=f"{apazine.DirURL}/{apazine.PageName}>"
                         href=href.replace(" ", "%20")
                         newtable+=f"<td><a href={href}{UnicodeToHtml(apazine.IssueName)}</a></td>\n"
+                    newtable+=f"<td>{FormatLink(href, UnicodeToHtml(apazine.IssueName))}</td>\n"
                 else:
                     newtable+=f"<td>&nbsp;</td>\n"
                 if apazine.Editor != "":
@@ -344,7 +346,7 @@ def main():
             editor=mailing.MIFJ.Editor
             issues=mailing.Count.Issues
             pages=mailing.Count.Pages
-            newAPAPageFront+=(f"\n<tr><td><a href={mailing.Number}.html>{mailing.Number}</a></td>"
+            newAPAPageFront+=(f"\n<tr><td>{FormatLink(mailing.Number+".html", mailing.Number)}</td>"
                               f"<td>{when}</td><td>{editor}</td>"
                               f"<td style='text-align: right'>{issues}&nbsp;&nbsp;&nbsp;&nbsp;</td>"
                               f"<td style='text-align: right'>{pages}&nbsp;&nbsp;&nbsp;&nbsp;</td>"
@@ -393,7 +395,7 @@ def main():
 
     allAPAs.sort()
     for apa in allAPAs:
-        listText+=(f"\n<tr><td>&nbsp;&nbsp;&nbsp;<a href={apa.Name}/index.html>{apa.Name}</a></td>\n"
+        listText+=(f"\n<tr><td>&nbsp;&nbsp;&nbsp;{FormatLink(apa.Name+'/index.html', apa.Name)}</td>\n"
                           f"<td style='text-align: right'>{apa.Count.Mailings}&nbsp;&nbsp;&nbsp;</td>\n"
                           f"<td style='text-align: right'>{apa.Count.Issues}&nbsp;&nbsp;&nbsp;</td>\n"
                           f"<td style='text-align: right'>{FormatCount(apa.Count.Pages)}&nbsp;&nbsp;&nbsp;</td>\n"
