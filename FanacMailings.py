@@ -53,7 +53,7 @@ def main():
     # Open and read it
     try:
         with open(sourceCSVfile, 'r') as csvfile:
-            filereader=csv.reader(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filereader=csv.reader(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             mailingsdata=[x for x in filereader]
     except FileNotFoundError:
         LogError(f"Could not open CSV file {sourceCSVfile}")
