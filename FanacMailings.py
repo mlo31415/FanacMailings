@@ -52,7 +52,7 @@ def main():
         return
     # Open and read it
     try:
-        with open(sourceCSVfile, 'r') as csvfile:
+        with open(sourceCSVfile, 'r', encoding="utf-8") as csvfile:
             filereader=csv.reader(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             mailingsdata=[x for x in filereader]
     except FileNotFoundError:
